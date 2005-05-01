@@ -165,7 +165,13 @@ AC_CHECK_FUNC(getopt_long,
     have_getopt_long=1
   ], have_getopt_long=0
 )
-AM_CONDITIONAL(HAVE_GETOPT_LONG, test x$have_getopt_long = x1)
+
+AC_CHECK_FUNC(getopt,
+  [
+    AC_DEFINE([HAVE_GETOPT], [], [HAVE_GETOPT])
+    have_getopt=1
+  ], have_getopt=0
+)
 
 ##
 ##  Enable/disable checking
@@ -282,6 +288,18 @@ AC_DEFUN([SILC_ADD_CFLAGS],
   unset tmp_CFLAGS
 ])
 
+# Function to check if compiler flag works, destination specifiable
+# Usage: SILC_ADD_CC_FLAGS(VAR, FLAGS, [ACTION-IF-FAILED])
+AC_DEFUN([SILC_ADD_CC_FLAGS],
+[ tmp_CFLAGS="$1_CFLAGS"
+  $1_CFLAGS="${$1_CFLAGS} $2"
+  AC_MSG_CHECKING(whether $CC accepts $2 flag)
+  AC_TRY_LINK([], [], [AC_MSG_RESULT(yes)], [AC_MSG_RESULT(no)
+				       $1_CFLAGS="$tmp_CFLAGS"
+				       $3])
+  unset tmp_CFLAGS
+])
+
 if test "$GCC"; then
   # GCC specific options
   if test "x$summary_debug" = "xyes"; then
@@ -295,6 +313,9 @@ else
   # Other compilers
   case "$target" in
     alpha*-dec-osf*)
+      SILC_ADD_CFLAGS(-g3 -O2, SILC_ADD_CFLAGS(-g3 -O, SILC_ADD_CFLAGS(-O)))
+      ;;
+    mips*-sgi-irix*)
       SILC_ADD_CFLAGS(-g3 -O2, SILC_ADD_CFLAGS(-g3 -O, SILC_ADD_CFLAGS(-O)))
       ;;
     *)
@@ -392,44 +413,6 @@ AC_SUBST(DOCDIR)
 AC_DEFINE_UNQUOTED([SILC_DOCDIR], "$DOCDIR", [SILC_DOCDIR])
 #endif SILC_DIST_AUTODIST
 
-#ifdef SILC_DIST_CLIENT
-# help directory
-#
-HELPDIR="$silc_prefix/help"
-AC_ARG_WITH(helpdir,
-  [[  --with-helpdir=DIR      directory for SILC help files [PREFIX/help]]],
-  [
-    case "$withval" in
-      no|yes)
-        ;;
-      *)
-       HELPDIR="$withval"
-       ;;
-    esac
-  ])
-AC_SUBST(HELPDIR)
-AC_DEFINE_UNQUOTED([SILC_HELPDIR], "$HELPDIR", [SILC_HELPDIR])
-#endif SILC_DIST_CLIENT
-
-#ifdef SILC_DIST_SIM
-# SIM modules directory
-#
-MODULESDIR="$silc_prefix/modules"
-AC_ARG_WITH(simdir,
-  [[  --with-simdir=DIR       directory for SIM modules [PREFIX/modules]]],
-  [
-    case "$withval" in
-      no|yes)
-        ;;
-      *)
-        MODULESDIR="$withval"
-        ;;
-    esac
-  ])
-AC_SUBST(MODULESDIR)
-AC_DEFINE_UNQUOTED([SILC_MODULESDIR], "$MODULESDIR", [SILC_MODULESDIR])
-#endif SILC_DIST_SIM
-
 #ifdef SILC_DIST_COMPILER
 ##
 ##  With/without checkings
@@ -438,9 +421,10 @@ AC_DEFINE_UNQUOTED([SILC_MODULESDIR], "$MODULESDIR", [SILC_MODULESDIR])
 #
 # SILC library checking
 compile_libs=true
+LIBSUBDIR=lib
 
 #ifndef SILC_DIST_TOOLKIT
-AC_ARG_WITH(silc-includes, 
+AC_ARG_WITH(silc-includes,
   [  --with-silc-includes=DIR SILC Toolkit includes [search in DIR]],
   [ac_silc_includes="$withval"], [ac_silc_includes="no"])
 AC_ARG_WITH(silc-libs,
@@ -453,9 +437,11 @@ if test -n "$with_silc_includes" || test -n "$with_silc_libs"; then
   if test "$ac_silc_includes" != "no"; then
     compile_libs=false
     SILC_LIB_INCLUDES="-I$ac_silc_includes"
+    LIBSUBDIR=
   fi
   if test "$ac_silc_libs" != "no"; then
     compile_libs=false
+    LIBSUBDIR=
     LIBS="$LIBS -L$ac_silc_libs"
   fi
 
@@ -474,16 +460,23 @@ if test -n "$with_silc_includes" || test -n "$with_silc_libs"; then
 else
   # pkg-config check
   PKG_CHECK_MODULES(SILC, silc, compile_libs=false, compile_libs=true)
+#ifdef SILC_DIST_CLIENTLIB
   PKG_CHECK_MODULES(SILCCLIENT, silcclient, compile_libs=false, compile_libs=true)
+#endif SILC_DIST_CLIENTLIB
 
   if test x$compile_libs = xfalse; then
+    LIBSUBDIR=
     LIBS="$LIBS $SILC_LIBS"
     CFLAGS="$CFLAGS $SILC_CFLAGS"
+#ifdef SILC_DIST_CLIENTLIB
     LIBS="$LIBS $SILCCLIENT_LIBS"
     CFLAGS="$CFLAGS $SILCCLIENT_CFLAGS"
+#endif SILC_DIST_CLIENTLIB
   fi
 fi
 #endif SILC_DIST_TOOLKIT
+
+AC_SUBST(LIBSUBDIR)
 
 # SOCKS4 support checking
 #
@@ -602,7 +595,7 @@ fi
 
 #ifdef SILC_DIST_MATH
 # MP library checking. First check whether user wants to use GMP and use
-# it if found. If not or not defined then compile the MPI library in the
+# it if found. If not or not defined then compile the default library in the
 # source tree.
 #
 mp_gmp=false
@@ -611,7 +604,7 @@ SAVE_CFLAGS="$CFLAGS"
 SAVE_LDFLAGS="$LDFLAGS"
 AC_MSG_CHECKING(whether to search for GMP)
 AC_ARG_WITH(gmp,
-  [[  --with-gmp[=DIR]        use GMP instead of MPI [search in DIR/lib and DIR/include]]],
+  [[  --with-gmp[=DIR]        use GMP instead of SILC Math [search in DIR/lib and DIR/include]]],
   [
     case "$withval" in
       no)
@@ -647,10 +640,10 @@ AC_ARG_WITH(gmp,
   )
 
 AM_CONDITIONAL(SILC_MP_GMP, test x$mp_gmp = xtrue)
-AM_CONDITIONAL(SILC_MP_NSS_MPI, test x$mp_gmp = xfalse)
+AM_CONDITIONAL(SILC_MP_SILCMATH, test x$mp_gmp = xfalse)
 if test x$mp_gmp = xfalse; then
-  AC_DEFINE([SILC_MP_NSS_MPI], [], [MPI])
-  AC_MSG_RESULT(Using NSS MPI as a MP library.)
+  AC_DEFINE([SILC_MP_SILCMAP], [], [SILCMATH])
+  AC_MSG_RESULT(Using SILC Math as a MP library.)
 fi
 #endif SILC_DIST_MATH
 
@@ -990,43 +983,36 @@ AM_CONDITIONAL(SILC_BEOS, test xfalse = xtrue)
 AM_CONDITIONAL(SILC_OS2, test xfalse = xtrue)
 
 #ifdef SILC_DIST_TOOLKIT
-# --without-irssi
+# --with-irssi
 #
-without_irssi=false
+without_irssi=true
 AC_MSG_CHECKING(whether to compile Irssi SILC Client)
 AC_ARG_WITH(irssi,
-  [  --without-irssi         compile without Irssi SILC Client],
+  [  --with-irssi            compile with Irssi SILC Client],
+  [
+    AC_MSG_RESULT(yes)
+    without_irssi=false
+  ],
   [
     AC_MSG_RESULT(no)
     without_irssi=true
-  ],
-  [
-    AC_MSG_RESULT(yes)
   ])
 
-# --without-silcd
+# --with-silcd
 #
-without_silcd=false
+without_silcd=true
 AC_MSG_CHECKING(whether to compile SILC Server)
 AC_ARG_WITH(silcd,
-  [  --without-silcd         compile without SILC Server],
+  [  --with-silcd            compile with SILC Server],
+  [
+    AC_MSG_RESULT(yes)
+    without_silcd=false
+  ],
   [
     AC_MSG_RESULT(no)
     without_silcd=true
-  ],
-  [
-    AC_MSG_RESULT(yes)
   ])
 #endif SILC_DIST_TOOLKIT
-
-#ifdef SILC_DIST_CLIENT
-# Irssi perl support
-#
-AC_ARG_WITH(perl,
-  [[  --with-perl[=yes|no|module]  Build with Perl support - also specifies
-                               if it should be built into main silc binary
-                               (static, default) or as a module]])
-#endif SILC_DIST_CLIENT
 
 libtoolfix=true
 AC_MSG_CHECKING(whether to do libtoolfix)
@@ -1042,7 +1028,6 @@ AC_ARG_WITH(libtoolfix,
 
 AC_SUBST(ETCDIR)
 AC_DEFINE_UNQUOTED([SILC_ETCDIR], "$ETCDIR", [SILC_ETCDIR])
-
 #endif SILC_DIST_COMPILER
 
 ##
@@ -1051,20 +1036,6 @@ AC_DEFINE_UNQUOTED([SILC_ETCDIR], "$ETCDIR", [SILC_ETCDIR])
 
 # Make enable-shared aware
 AM_CONDITIONAL(SILC_ENABLE_SHARED, test "$enable_shared" = yes)
-
-# Other configure scripts
-#
-
-#ifdef SILC_DIST_TOOLKIT
-if test x$without_irssi = xfalse; then
-#endif SILC_DIST_TOOLKIT
-#ifdef SILC_DIST_CLIENT
-  AC_CONFIG_SUBDIRS(irssi)
-  irssi="yes"
-#endif SILC_DIST_CLIENT
-#ifdef SILC_DIST_TOOLKIT
-fi
-#endif SILC_DIST_TOOLKIT
 
 SILC_TOP_SRCDIR=`pwd`
 
@@ -1118,21 +1089,7 @@ apps/Makefile
 )
 
 #ifdef SILC_DIST_TOOLKIT
-if test x$without_irssi = xfalse ; then
-#endif SILC_DIST_TOOLKIT
-#ifdef SILC_DIST_CLIENT
-  AC_CONFIG_FILES(
-irssi/Makefile.defines
-irssi/Makefile.defines_int
-)
-#endif SILC_DIST_CLIENT
-#ifdef SILC_DIST_TOOLKIT
-fi
-#endif SILC_DIST_TOOLKIT
-
-#ifdef SILC_DIST_TOOLKIT
 AC_CONFIG_FILES(
-silc/Makefile
 win32/Makefile
 win32/libsilc/Makefile
 win32/libsilcclient/Makefile
@@ -1194,8 +1151,10 @@ echo " Compile SILC Client ...........: $irssi"
 
 #ifdef SILC_DIST_SERVER
 echo " Compile SILC Server ...........: $silcd"
+if test x$without_silcd = xfalse; then
 echo " Server configuration file .....: $summary_silcd_configfile"
 echo " Server PID file ...............: $PIDFILE"
+fi
 #endif SILC_DIST_SERVER
 
 #ifdef SILC_DIST_SIM
@@ -1224,11 +1183,9 @@ fi
 echo " Assembler optimizations .......: $summary_asm"
 
 #ifdef SILC_DIST_MATH
-mp="MPI"
 if test x$mp_gmp = xtrue; then
-  mp="GMP"
+  echo " Arithmetic library ............: GMP"
 fi
-echo " Arithmetic library ............: $mp"
 #endif SILC_DIST_MATH
 
 threads="no"
@@ -1240,4 +1197,3 @@ echo " Debugging enabled .............: $summary_debug"
 echo ""
 echo "Compile the sources with 'make' or 'gmake' command."
 #endif SILC_DIST_COMPILER
-
