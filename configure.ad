@@ -3,7 +3,7 @@
 #
 #  Author: Pekka Riikonen <priikone@silcnet.org>
 #
-#  Copyright (C) 2000 - 2005 Pekka Riikonen
+#  Copyright (C) 2000 - 2007 Pekka Riikonen
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -33,7 +33,14 @@ AC_PATH_PROG(sedpath, sed)
 # Put here any platform specific stuff
 #
 case "$target" in
+  *-*-linux*)
+    check_threads=true
+    CFLAGS=`echo $CFLAGS -D_GNU_SOURCE`
+    ;;
   *-*-freebsd*)
+    check_threads=true
+    ;;
+  *-*-netbsd*)
     check_threads=true
     ;;
   *-*-*bsd*)
@@ -43,6 +50,42 @@ case "$target" in
     check_threads=true
     ;;
 esac
+
+# Get CPU
+cpu_i386=false
+cpu_ix86=false
+cpu_x86_64=false
+cpu_ppc=false
+cpu_ia64=false
+case "$host_cpu" in
+  i386)
+    AC_DEFINE([SILC_I386], [], [SILC_I386])
+    AC_DEFINE([SILC_I486], [], [SILC_I486])
+    cpu_i386=true
+    cpu_ix86=true
+    ;;
+  i?86)
+    AC_DEFINE([SILC_I486], [], [SILC_I486])
+    cpu_ix86=true
+    ;;
+  x86_64)
+    AC_DEFINE([SILC_X86_64], [], [SILC_X86_64])
+    cpu_x86_64=true
+    ;;
+  powerpc*)
+    AC_DEFINE([SILC_POWERPC], [], [SILC_POWERPC])
+    cpu_ppc=true
+    ;;
+  ia64)
+    AC_DEFINE([SILC_IA64], [], [SILC_IA64])
+    cpu_ia64=true
+    ;;
+esac
+AM_CONDITIONAL(SILC_I386, test x$cpu_i386 = xtrue)
+AM_CONDITIONAL(SILC_I486, test x$cpu_ix86 = xtrue)
+AM_CONDITIONAL(SILC_X86_64, test x$cpu_x86_64 = xtrue)
+AM_CONDITIONAL(SILC_POWERPC, test x$cpu_ppc = xtrue)
+AM_CONDITIONAL(SILC_IA64, test x$cpu_ia64 = xtrue)
 
 # Control compiler optimizations
 CFLAGS=`echo $CFLAGS | sed 's/-O[ 0123456789s]*//g'`
@@ -55,10 +98,36 @@ __SILC_HAVE_PTHREAD=""
 __SILC_HAVE_SIM=""
 __SILC_ENABLE_DEBUG=""
 
+#ifdef SILC_DIST_TOOLKIT
+toolkitver=`echo $VERSION | sed 's/\./ /g'`
+maj=0
+min=0
+bld=0
+for v in $toolkitver
+do
+  if test $maj -eq 0; then
+    maj=$v
+    continue
+  fi
+  if test $min -eq 0; then
+    min=$v
+    continue
+  fi
+  if test $bld -eq 0; then
+    bld=$v
+    continue
+  fi
+done
+__SILC_PACKAGE_VERSION="#define __SILC_TOOLKIT_VERSION SILC_VERSION($maj,$min,$bld)"
+#endif SILC_DIST_TOOLKIT
+
 AC_PROG_RANLIB
 #ifndef SILC_DIST_TOOLKIT
 AC_DISABLE_SHARED
 #endif SILC_DIST_TOOLKIT
+#ifdef SILC_DIST_INPLACE
+AC_DISABLE_SHARED
+#endif SILC_DIST_INPLACE
 AC_PROG_LIBTOOL
 
 # Header checking
@@ -96,6 +165,32 @@ AC_CHECK_SIZEOF(char, 0)
 AC_SUBST(SILC_SIZEOF_CHAR, $ac_cv_sizeof_char)
 AC_CHECK_SIZEOF(void *, 0)
 AC_SUBST(SILC_SIZEOF_VOID_P, $ac_cv_sizeof_void_p)
+AC_CHECK_TYPES(long long)
+AC_CHECK_TYPES(long double)
+
+# Function to check if compiler flag works
+# Usage: SILC_ADD_CFLAGS(FLAGS, [ACTION-IF-FAILED])
+AC_DEFUN([SILC_ADD_CFLAGS],
+[ tmp_CFLAGS="$CFLAGS"
+  CFLAGS="$CFLAGS $1"
+  AC_MSG_CHECKING(whether $CC accepts $1 flag)
+  AC_TRY_LINK([], [], [AC_MSG_RESULT(yes)], [AC_MSG_RESULT(no)
+				       CFLAGS="$tmp_CFLAGS"
+				       $2])
+  unset tmp_CFLAGS
+])
+
+# Function to check if compiler flag works, destination specifiable
+# Usage: SILC_ADD_CC_FLAGS(VAR, FLAGS, [ACTION-IF-FAILED])
+AC_DEFUN([SILC_ADD_CC_FLAGS],
+[ tmp_CFLAGS="$1_CFLAGS"
+  $1_CFLAGS="${$1_CFLAGS} $2"
+  AC_MSG_CHECKING(whether $CC accepts $2 flag)
+  AC_TRY_LINK([], [], [AC_MSG_RESULT(yes)], [AC_MSG_RESULT(no)
+				       $1_CFLAGS="$tmp_CFLAGS"
+				       $3])
+  unset tmp_CFLAGS
+])
 
 # Function and library checking
 #
@@ -110,46 +205,12 @@ AC_CHECK_FUNC(socket, [],
   AC_CHECK_LIB(socket, socket, LIBS="$LIBS -lsocket")
 )
 AC_CHECK_FUNCS(gethostname gethostbyaddr getservbyname getservbyport)
-AC_CHECK_FUNCS(select listen bind shutdown close connect setsockopt)
-AC_CHECK_FUNCS(time ctime utime gettimeofday getrusage)
+AC_CHECK_FUNCS(poll select listen bind shutdown close connect setsockopt)
+AC_CHECK_FUNCS(setrlimit time ctime utime gettimeofday getrusage)
 AC_CHECK_FUNCS(chmod fcntl stat fstat getenv putenv strerror)
-AC_CHECK_FUNCS(getpid getgid getsid getpgid getpgrp getuid)
-AC_CHECK_FUNCS(setgroups initgroups nl_langinfo)
-AC_CHECK_FUNCS(strchr strstr strcpy strncpy memcpy memset memmove)
-
-#ifdef SILC_DIST_SIM
-# SIM support checking
-# XXX These needs to be changed as more supported platforms appear.
-# XXX This probably needs to be made platform dependant check.
-#
-sim_support=false
-AC_MSG_CHECKING(for SIM support)
-AC_MSG_RESULT()
-AC_CHECK_HEADERS(dlfcn.h,
-  [
-    AC_CHECK_LIB(dl, dlopen,
-      [
-        AC_DEFINE([SILC_SIM], [], [HAVE_SIM])
-        sim_support=true
-        LIBS="$LIBS -ldl"
-      ],
-      [
-        AC_CHECK_LIB(c, dlopen,
-          [
-            AC_DEFINE([SILC_SIM], [], [HAVE_SIM])
-            sim_support=true
-          ])
-      ])
-   ])
-
-AM_CONDITIONAL(SILC_SIM, test x$sim_support = xtrue)
-if test x$sim_support = xtrue; then
-  AC_MSG_RESULT(Enabled SIM support.)
-  __SILC_HAVE_SIM="#define __SILC_HAVE_SIM 1"
-else
-  AC_MSG_RESULT(No SIM support found.)
-fi
-#endif SILC_DIST_SIM
+AC_CHECK_FUNCS(getpid getgid getsid getpgid getpgrp getuid sched_yield)
+AC_CHECK_FUNCS(setgroups initgroups nl_langinfo nanosleep)
+AC_CHECK_FUNCS(strchr snprintf strstr strcpy strncpy memcpy memset memmove)
 
 # lib/contrib conditionals
 #
@@ -259,6 +320,23 @@ AC_ARG_ENABLE(debug,
     AC_MSG_RESULT(no)
   ])
 
+# Disable all compiler optimizations
+#
+AC_MSG_CHECKING(whether to enable compiler optimizations)
+want_cc_optimizations=true
+AC_ARG_ENABLE(optimizations,
+  [  --disable-optimizations do not use any compiler optimizations],
+  [
+    AC_MSG_RESULT(no)
+    AC_DEFINE([SILC_NO_CC_OPTIMIZATIONS], [], [SILC_NO_CC_OPTIMIZATIONS])
+    want_cc_optimizations=false
+  ],
+  [
+    AC_MSG_RESULT(yes)
+    want_cc_optimizations=true
+  ])
+AM_CONDITIONAL(SILC_NO_CC_OPTIMIZATIONS, test x$want_cc_optimizations = xfalse)
+
 # Disable all assembler optimizations
 #
 AC_MSG_CHECKING(whether to enable assembler optimizations)
@@ -267,47 +345,147 @@ AC_ARG_ENABLE(asm,
   [  --disable-asm           do not use assembler optimizations],
   [
     AC_MSG_RESULT(no)
+    AC_DEFINE([SILC_NO_ASM], [], [SILC_NO_ASM])
     want_asm=false
   ],
   [
     AC_MSG_RESULT(yes)
     want_asm=true
   ])
+AM_CONDITIONAL(SILC_NO_ASM, test x$want_asm = xfalse)
+
+# Check for assembler
+#
+SILC_ASSEMBLER=""
+have_assembler=false
+if test x$want_asm = xtrue; then
+  AC_PATH_PROG([NASM], [nasm], [no])
+  if test "x$NASM" != "xno"; then
+    SILC_ASSEMBLER="$NASM -O2 -felf"
+    have_assembler=true
+  fi
+
+  AC_PATH_PROG([YASM], [yasm], [no])
+  if test "x$YASM" != "xno"; then
+    SILC_ASSEMBLER="$YASM -Xgnu -felf"
+    have_assembler=true
+  fi
+fi
+AC_SUBST(SILC_ASSEMBLER)
+
+##
+## va_copy checks
+##
+va_copy=false
+AC_MSG_CHECKING(for va_copy)
+AC_TRY_COMPILE(
+  [
+    #include <stdarg.h>
+    #include <stdlib.h>
+  ],
+  [
+    int t(int x, ...)
+    {
+      va_list va, cp;
+      va_start(va, x);
+      va_copy(cp, va);
+      if (va_arg(cp, int) != 0xff11)
+        return 1;
+      va_end(va);
+      va_end(cp);
+      return 0;
+    }
+    int main()
+    {
+      return t(0, 0xff11);
+    }
+  ],
+  [
+    AC_DEFINE([HAVE_VA_COPY], [], [HAVE_VA_COPY])
+    AC_MSG_RESULT(yes)
+    va_copy=true
+  ],
+  [
+    AC_MSG_RESULT(no)
+    va_copy=false
+  ]
+)
+
+if test x$va_copy = xfalse; then
+  AC_MSG_CHECKING(for __va_copy)
+  AC_TRY_COMPILE(
+  [
+    #include <stdarg.h>
+    #include <stdlib.h>
+  ],
+  [
+    int t(int x, ...)
+    {
+      va_list va, cp;
+      va_start(va, x);
+      __va_copy(cp, va);
+      if (va_arg(cp, int) != 0xff11)
+        return 1;
+      va_end(va);
+      va_end(cp);
+      return 0;
+    }
+    int main()
+    {
+      return t(0, 0xff11);
+    }
+  ],
+  [
+    AC_DEFINE([HAVE___VA_COPY], [], [HAVE___VA_COPY])
+    AC_MSG_RESULT(yes)
+    va_copy=true
+  ],
+  [
+    AC_MSG_RESULT(no)
+    va_copy=false
+  ]
+  )
+fi
+
+if test x$va_copy = xfalse; then
+  AC_RUN_IFELSE(
+    [
+      #include <stdarg.h>
+      #include <stdlib.h>
+      int t(int x, ...)
+      {
+        va_list va, cp;
+        va_start(va, x);
+        cp = va;
+        if (va_arg(cp, int) != 0xff11)
+          return 1;
+        va_end(va);
+        va_end(cp);
+        return 0;
+      }
+      int main()
+      {
+        return t(0, 0xff11);
+      }
+    ],
+    [va_copy=false],
+    [
+      AC_DEFINE([SILC_VA_COPY_ARRAY], [], [SILC_VA_COPY_ARRAY])
+    ],
+    [va=copy=false]
+  )
+fi
 
 ##
 ## Compiler and compiler flag checks
 ##
 
-# Function to check if compiler flag works
-# Usage: SILC_ADD_CFLAGS(FLAGS, [ACTION-IF-FAILED])
-AC_DEFUN([SILC_ADD_CFLAGS],
-[ tmp_CFLAGS="$CFLAGS"
-  CFLAGS="$CFLAGS $1"
-  AC_MSG_CHECKING(whether $CC accepts $1 flag)
-  AC_TRY_LINK([], [], [AC_MSG_RESULT(yes)], [AC_MSG_RESULT(no)
-				       CFLAGS="$tmp_CFLAGS"
-				       $2])
-  unset tmp_CFLAGS
-])
-
-# Function to check if compiler flag works, destination specifiable
-# Usage: SILC_ADD_CC_FLAGS(VAR, FLAGS, [ACTION-IF-FAILED])
-AC_DEFUN([SILC_ADD_CC_FLAGS],
-[ tmp_CFLAGS="$1_CFLAGS"
-  $1_CFLAGS="${$1_CFLAGS} $2"
-  AC_MSG_CHECKING(whether $CC accepts $2 flag)
-  AC_TRY_LINK([], [], [AC_MSG_RESULT(yes)], [AC_MSG_RESULT(no)
-				       $1_CFLAGS="$tmp_CFLAGS"
-				       $3])
-  unset tmp_CFLAGS
-])
-
 if test "$GCC"; then
   # GCC specific options
   if test "x$summary_debug" = "xyes"; then
-    SILC_ADD_CFLAGS(-g -O)
+    SILC_ADD_CFLAGS(-g)
   else
-    SILC_ADD_CFLAGS(-g -O2)
+    SILC_ADD_CFLAGS(-g)
   fi
   SILC_ADD_CFLAGS(-Wall -finline-functions)
   SILC_ADD_CFLAGS(-Wno-pointer-sign)
@@ -315,20 +493,43 @@ else
   # Other compilers
   case "$target" in
     alpha*-dec-osf*)
-      SILC_ADD_CFLAGS(-g3 -O2, SILC_ADD_CFLAGS(-g3 -O, SILC_ADD_CFLAGS(-O)))
+      SILC_ADD_CFLAGS(-g3)
       ;;
     mips*-sgi-irix*)
-      SILC_ADD_CFLAGS(-g3 -O2, SILC_ADD_CFLAGS(-g3 -O, SILC_ADD_CFLAGS(-O)))
+      SILC_ADD_CFLAGS(-g3)
       ;;
     *)
       SILC_ADD_CFLAGS(-g)
-      SILC_ADD_CFLAGS(-O2, SILC_ADD_CFLAGS(-O))
       ;;
   esac
 
   # Intel C++ Compiler needs -restrict
   if test "x$CC" = "xicc"; then
     SILC_ADD_CFLAGS(-restrict)
+  fi
+fi
+
+if test x$want_cc_optimizations = xtrue; then
+  if test "$GCC"; then
+    # GCC specific options
+    if test "x$summary_debug" = "xyes"; then
+      SILC_ADD_CFLAGS(-O)
+    else
+      SILC_ADD_CFLAGS(-O2)
+    fi
+  else
+    # Other compilers
+    case "$target" in
+      alpha*-dec-osf*)
+        SILC_ADD_CFLAGS(-O2, SILC_ADD_CFLAGS(-O))
+        ;;
+      mips*-sgi-irix*)
+        SILC_ADD_CFLAGS(-O2, SILC_ADD_CFLAGS(-O))
+        ;;
+      *)
+        SILC_ADD_CFLAGS(-O2, SILC_ADD_CFLAGS(-O))
+        ;;
+    esac
   fi
 fi
 
@@ -363,54 +564,20 @@ AC_SUBST(FIX_SHA1)
 
 # Default installation destination
 #
-#ifdef SILC_DIST_AUTODIST
 AC_PREFIX_DEFAULT(/usr/local)
-#else !SILC_DIST_AUTODIST
-AC_PREFIX_DEFAULT(/usr/local/silc)
-#endif SILC_DIST_AUTODIST
 if test "x$prefix" != xNONE; then
   silc_prefix="$prefix"
 else
   silc_prefix="$ac_default_prefix"
+  prefix="$silc_prefix"
 fi
 
 #ifndef SILC_DIST_AUTODIST
-# etc directory
-#
-if test "x$sysconfdir" != 'x${prefix}/etc'; then
-  ETCDIR="$sysconfdir"
-else
-  ETCDIR="$silc_prefix/etc"
-fi
-
-AC_ARG_WITH(etcdir,
-  [[  --with-etcdir=DIR       directory for system files [/etc/silc]]],
-  [
-    case "$withval" in
-      no|yes)
-        ;;
-      *)
-        ETCDIR="$withval"
-        ;;
-    esac
-  ])
+ETCDIR=`eval echo $sysconfdir`;ETCDIR=`eval echo $ETCDIR`
 AC_SUBST(ETCDIR)
 AC_DEFINE_UNQUOTED([SILC_ETCDIR], "$ETCDIR", [SILC_ETCDIR])
 
-# doc directory
-#
-DOCDIR="$silc_prefix/doc"
-AC_ARG_WITH(docdir,
-  [[  --with-docdir=DIR       directory for SILC documentation [PREFIX/doc]]],
-  [
-    case "$withval" in
-      no|yes)
-        ;;
-      *)
-        DOCDIR="$withval"
-        ;;
-    esac
-  ])
+DOCDIR=`eval echo $docdir`;DOCDIR=`eval echo $DOCDIR`
 AC_SUBST(DOCDIR)
 AC_DEFINE_UNQUOTED([SILC_DOCDIR], "$DOCDIR", [SILC_DOCDIR])
 #endif SILC_DIST_AUTODIST
@@ -444,41 +611,86 @@ if test -n "$with_silc_includes" || test -n "$with_silc_libs"; then
   if test "$ac_silc_libs" != "no"; then
     compile_libs=false
     LIBSUBDIR=
-    LIBS="$LIBS -L$ac_silc_libs"
+    LDFLAGS="-L$ac_silc_libs $LDFLAGS"
+  else
+    LDFLAGS="-L\$(silc_top_srcdir)/lib $LDFLAGS"
   fi
 
   # Check libs to link against
-  f=`$EGREP __SILC_HAVE_PTHREAD $ac_silc_includes/silcincludes.h`
+  f=`$EGREP __SILC_HAVE_PTHREAD $ac_silc_includes/silc.h`
   if test -n "$f"; then
     LIBS="$LIBS -lpthread"
     check_threads=false
     has_threads=true
   fi
-  f=`$EGREP __SILC_HAVE_SIM $ac_silc_includes/silcincludes.h`
+  f=`$EGREP __SILC_HAVE_SIM $ac_silc_includes/silc.h`
   if test -n "$f"; then
     LIBS="$LIBS -ldl"
   fi
 
 else
   # pkg-config check
-  PKG_CHECK_MODULES(SILC, silc, compile_libs=false, compile_libs=true)
+  PKG_CHECK_MODULES(SILC, [silc >= 1.1], compile_libs=false, compile_libs=true)
 #ifdef SILC_DIST_CLIENTLIB
-  PKG_CHECK_MODULES(SILCCLIENT, silcclient, compile_libs=false, compile_libs=true)
+  PKG_CHECK_MODULES(SILCCLIENT, [silcclient >= 1.1.1], compile_libs=false, compile_libs=true)
 #endif SILC_DIST_CLIENTLIB
+#ifdef SILC_DIST_SERVERLIB
+  PKG_CHECK_MODULES(SILCSERVER, silcserver, compile_libs=false, compile_libs=true)
+#endif SILC_DIST_SERVERLIB
 
   if test x$compile_libs = xfalse; then
     LIBSUBDIR=
-    LIBS="$LIBS $SILC_LIBS"
+    LIBS="$SILC_LIBS $LIBS"
     CFLAGS="$CFLAGS $SILC_CFLAGS"
 #ifdef SILC_DIST_CLIENTLIB
-    LIBS="$LIBS $SILCCLIENT_LIBS"
+    LIBS="$SILCCLIENT_LIBS $LIBS"
     CFLAGS="$CFLAGS $SILCCLIENT_CFLAGS"
 #endif SILC_DIST_CLIENTLIB
+#ifdef SILC_DIST_SERVERLIB
+    LIBS="$LIBS $SILCSERVER_LIBS"
+    CFLAGS="$CFLAGS $SILCSERVER_CFLAGS"
+#endif SILC_DIST_SERVERLIB
+  else
+    LDFLAGS="-L\$(silc_top_srcdir)/lib $LDFLAGS"
   fi
 fi
+#else SILC_DIST_TOOLKIT
+LDFLAGS="-L\$(silc_top_srcdir)/lib $LDFLAGS"
 #endif SILC_DIST_TOOLKIT
 
-AC_SUBST(LIBSUBDIR)
+#ifdef SILC_DIST_SIM
+# SIM support checking
+# XXX These needs to be changed as more supported platforms appear.
+# XXX This probably needs to be made platform dependant check.
+#
+sim_support=false
+AC_MSG_CHECKING(for SIM support)
+AC_MSG_RESULT()
+AC_CHECK_HEADERS(dlfcn.h,
+  [
+    AC_CHECK_LIB(dl, dlopen,
+      [
+        AC_DEFINE([SILC_SIM], [], [HAVE_SIM])
+        sim_support=true
+        LIBS="$LIBS -ldl"
+      ],
+      [
+        AC_CHECK_LIB(c, dlopen,
+          [
+            AC_DEFINE([SILC_SIM], [], [HAVE_SIM])
+            sim_support=true
+          ])
+      ])
+   ])
+
+AM_CONDITIONAL(SILC_SIM, test x$sim_support = xtrue)
+if test x$sim_support = xtrue; then
+  AC_MSG_RESULT(Enabled SIM support.)
+  __SILC_HAVE_SIM="#define __SILC_HAVE_SIM 1"
+else
+  AC_MSG_RESULT(No SIM support found.)
+fi
+#endif SILC_DIST_SIM
 
 # SOCKS4 support checking
 #
@@ -644,7 +856,7 @@ AC_ARG_WITH(gmp,
 AM_CONDITIONAL(SILC_MP_GMP, test x$mp_gmp = xtrue)
 AM_CONDITIONAL(SILC_MP_SILCMATH, test x$mp_gmp = xfalse)
 if test x$mp_gmp = xfalse; then
-  AC_DEFINE([SILC_MP_SILCMAP], [], [SILCMATH])
+  AC_DEFINE([SILC_MP_SILCMATH], [], [SILCMATH])
   AC_MSG_RESULT(Using SILC Math as a MP library.)
 fi
 #endif SILC_DIST_MATH
@@ -949,11 +1161,110 @@ if test x$has_threads = xtrue; then
       ;;
    esac
 
+  # Check for threads
   AC_CHECK_FUNC(pthread_create)
+
+  # Check for read/write locks
+  AC_CHECK_FUNC(pthread_rwlock_init,
+  [
+    AC_RUN_IFELSE(
+      [
+        #include <pthread.h>
+        int main()
+        {
+          pthread_rwlock_t rwlock;
+          pthread_rwlock_init(&rwlock, NULL);
+          pthread_rwlock_destroy(&rwlock);
+          return 0;
+        }
+      ],
+      [],
+      [
+	# Rwlock not defined
+        CFLAGS="$CFLAGS -D_XOPEN_SOURCE=600"
+      ]
+    )
+  ],
+  [
+    # Rwlock not defined
+    CFLAGS="$CFLAGS -D_XOPEN_SOURCE=600"
+  ])
+
   AC_DEFINE([SILC_HAVE_PTHREAD], [], [HAVE_PTHREAD])
   AC_DEFINE([SILC_THREADS], [], [HAVE_THREAD])
   __SILC_HAVE_PTHREAD="#define __SILC_HAVE_PTHREAD 1"
 fi
+
+#
+# Check for timezone and tm_gmtoff for timezone information
+#
+AC_MSG_CHECKING(whether system has timezone)
+AC_RUN_IFELSE(
+  [
+    #include <stdio.h>
+    #include <time.h>
+    int main()
+    {
+      timezone = 0;
+      return 0;
+    }
+  ],
+  [ AC_MSG_RESULT(yes)
+    AC_DEFINE([HAVE_TIMEZONE], [], [HAVE_TIMEZONE]) ],
+  [ AC_MSG_RESULT(no) ],
+  [ AC_MSG_RESULT(no) ]
+)
+AC_MSG_CHECKING(whether system has tm_gmtoff)
+AC_RUN_IFELSE(
+  [
+    #include <stdio.h>
+    #include <time.h>
+    int main()
+    {
+      struct tm tm;
+      tm.tm_gmtoff = 0;
+      return 0;
+    }
+  ],
+  [ AC_MSG_RESULT(yes)
+    AC_DEFINE([HAVE_TM_GMTOFF], [], [HAVE_TM_GMTOFF]) ],
+  [ AC_MSG_RESULT(no) ],
+  [ AC_MSG_RESULT(no) ]
+)
+AC_MSG_CHECKING(whether system has __tm_gmtoff)
+AC_RUN_IFELSE(
+  [
+    #include <stdio.h>
+    #include <time.h>
+    int main()
+    {
+      struct tm tm;
+      tm.__tm_gmtoff = 0;
+      return 0;
+    }
+  ],
+  [ AC_MSG_RESULT(yes)
+    AC_DEFINE([HAVE___TM_GMTOFF], [], [HAVE___TM_GMTOFF]) ],
+  [ AC_MSG_RESULT(no) ],
+  [ AC_MSG_RESULT(no) ]
+)
+AC_MSG_CHECKING(whether system has __tm_gmtoff__)
+AC_RUN_IFELSE(
+  [
+    #include <stdio.h>
+    #include <time.h>
+    int main()
+    {
+      struct tm tm;
+      tm.__tm_gmtoff__ = 0;
+      return 0;
+    }
+  ],
+  [ AC_MSG_RESULT(yes)
+    AC_DEFINE([HAVE___TM_GMTOFF__], [], [HAVE___TM_GMTOFF__]) ],
+  [ AC_MSG_RESULT(no) ],
+  [ AC_MSG_RESULT(no) ]
+)
 
 # Native WIN32 compilation under cygwin
 #
@@ -972,9 +1283,9 @@ AC_ARG_WITH(win32,
   ])
 AM_CONDITIONAL(SILC_WIN32, test x$win32_support = xtrue)
 
-# Native EPOC support (disabled by default)
+# Native Symbian OS support (disabled by default)
 #
-AM_CONDITIONAL(SILC_EPOC, test xfalse = xtrue)
+AM_CONDITIONAL(SILC_SYMBIAN, test xfalse = xtrue)
 
 # Native BeOS support (disabled by default)
 #
@@ -984,38 +1295,12 @@ AM_CONDITIONAL(SILC_BEOS, test xfalse = xtrue)
 #
 AM_CONDITIONAL(SILC_OS2, test xfalse = xtrue)
 
-#ifdef SILC_DIST_TOOLKIT
-# --with-irssi
-#
-without_irssi=true
-AC_MSG_CHECKING(whether to compile Irssi SILC Client)
-AC_ARG_WITH(irssi,
-  [  --with-irssi            compile with Irssi SILC Client],
-  [
-    AC_MSG_RESULT(yes)
-    without_irssi=false
-  ],
-  [
-    AC_MSG_RESULT(no)
-    without_irssi=true
-  ])
-AM_CONDITIONAL(with_irssi, test xwithout_irssi = xfalse)
-
-# --with-silcd
-#
-without_silcd=true
-AC_MSG_CHECKING(whether to compile SILC Server)
-AC_ARG_WITH(silcd,
-  [  --with-silcd            compile with SILC Server],
-  [
-    AC_MSG_RESULT(yes)
-    without_silcd=false
-  ],
-  [
-    AC_MSG_RESULT(no)
-    without_silcd=true
-  ])
-#endif SILC_DIST_TOOLKIT
+#ifdef SILC_DIST_SERVER
+without_silcd=false
+#endif SILC_DIST_SERVER
+#ifdef SILC_DIST_CLIENT
+AM_CONDITIONAL(with_irssi, true)
+#endif SILC_DIST_CLIENT
 #ifdef SILC_DIST_INPLACE
 without_irssi=false
 without_silcd=false
@@ -1053,12 +1338,15 @@ AD_INCLUDE_CONFIGURE
 #
 # Substitutions
 #
+AC_SUBST(LIBSUBDIR)
 AC_SUBST(SILC_TOP_SRCDIR)
+AC_SUBST(LDFLAGS)
 AC_SUBST(LIBS)
 AC_SUBST(SILC_LIB_INCLUDES)
 AC_SUBST(__SILC_HAVE_PTHREAD)
 AC_SUBST(__SILC_HAVE_SIM)
 AC_SUBST(__SILC_ENABLE_DEBUG)
+AC_SUBST(__SILC_PACKAGE_VERSION)
 
 #
 # Fix the libtool to support run-time configuration.  This allows us
@@ -1088,7 +1376,7 @@ Makefile.defines
 Makefile.defines_int
 includes/Makefile
 includes/silcversion.h
-includes/silcincludes.h
+includes/silc.h
 #endif SILC_DIST_COMPILER
 #ifdef SILC_DIST_APPS
 apps/Makefile
@@ -1137,20 +1425,17 @@ echo " include directory .............: $s_includedir"
 #endif SILC_DIST_INCLUDES
 echo ""
 
-#ifdef SILC_DIST_TOOLKIT
+#ifdef SILC_DIST_CLIENT
 if test x$without_irssi = xtrue; then
   irssi="no"
 fi
-if test x$without_silcd = xtrue; then
-  silcd="no"
-fi
-#endif SILC_DIST_TOOLKIT
-
-#ifdef SILC_DIST_CLIENT
 echo " Compile SILC Client ...........: $irssi"
 #endif SILC_DIST_CLIENT
 
 #ifdef SILC_DIST_SERVER
+if test x$without_silcd = xtrue; then
+  silcd="no"
+fi
 echo " Compile SILC Server ...........: $silcd"
 #endif SILC_DIST_SERVER
 
