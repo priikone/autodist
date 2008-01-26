@@ -1208,7 +1208,9 @@ ad_parse_distribution()
    | grep "define " | cut -d' ' -f2 | sort | uniq`
 
   if test "$inhs" = "" && test "$defs" = ""; then
-    ad_fatal "Distribution '$1' does not define anything"
+    if test "$1" != "default"; then
+      ad_fatal "Distribution '$1' does not define anything"
+    fi
   fi
 
   # Get undefined distdefs
@@ -1379,7 +1381,9 @@ ad_process_distdefs()
   do
     echo $i >>autodist.tmp.defs
   done
-  distdefs=`sort < autodist.tmp.defs | uniq`
+  if test -f autodist.tmp.defs; then
+    distdefs=`sort < autodist.tmp.defs | uniq`
+  fi
   distdefs=`echo $distdefs`
   rm -f autodist.tmp.defs
 
@@ -1846,7 +1850,7 @@ ad_run_dist_hooks()
 ###############################################################################
 # Autodist code
 
-usage="Usage: autodist [options] [distribution] [version] [params]"
+usage="Usage: autodist [OPTIONS] [DISTRIBUTION] [VERSION] [PARAMS]"
 help="\
 Autodist prepares source tree for configuration, compilation and
 distribution.  Generates Automake.am files from Automake.ad files,
@@ -2007,8 +2011,6 @@ ad_debug "Preparing $distribution distribution version $dist_version"
 #
 if test "$DISTDEFS"; then
   ad_create_distdefs_h
-else
-  ad_fatal "DISTDEFS not defined in $distdir/autodist.conf"
 fi
 
 # Get extra parameters from command line
