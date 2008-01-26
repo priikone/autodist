@@ -7,24 +7,24 @@ Autodist \- Source distribution management system
 .PP
 .SH DESCRIPTION
 .PP
-The Autodist is a source distribution management system that allows 
-powerful mechanisms to define what is included in and excluded from a 
-distribution, and what license the distribution is released under.  It is 
-also used to create the actual distribution source packages.  Autodist 
-allows distribution management in file, directory and file content level.  
-Different distributions may include different portions of files, for 
-example, excluding certain features from certain distributions.  It is 
-always guaranteed that anything not defined for the distribution, is 
-removed automatically (files, file content, directories), thus ensuring 
+The Autodist is a source distribution management system that allows
+powerful mechanisms to define what is included in and excluded from a
+distribution, and what license the distribution is released under.  It is
+also used to create the actual distribution source packages.  Autodist
+allows distribution management in file, directory and file content level.
+Different distributions may include different portions of files, for
+example, excluding certain features from certain distributions.  It is
+always guaranteed that anything not defined for the distribution, is
+removed automatically (files, file content, directories), thus ensuring
 that nothing is accidentally included in the distribution.
 .PP
-Autodist is closely related to the Autoconf and Automake tools, and 
-complements the features Autoconf and Automake provides.  It is especially 
-targeted into circumstances where multiple distributions are created from 
-one source tree.  The Autoconf and Automake environment is mainly designed 
-for one application per one source tree situations.  Autodist provides 
-mechanisms to create all kinds of distributions that can be created from 
-one source tree.  To be able to use Autodist, the Autoconf and Automake 
+Autodist is closely related to the Autoconf and Automake tools, and
+complements the features Autoconf and Automake provides.  It is especially
+targeted into circumstances where multiple distributions are created from
+one source tree.  The Autoconf and Automake environment is mainly designed
+for one application per one source tree situations.  Autodist provides
+mechanisms to create all kinds of distributions that can be created from
+one source tree.  To be able to use Autodist, the Autoconf and Automake
 must be installed into the system.
 .PP
 .SH OPTIONS
@@ -58,8 +58,7 @@ default distribution 'default', then exits.
 .PP
 .TP
 \fB\-p\fR, \fB\-\-process\fR \fB<type>\fR \fB<src>\fR \fB<dst>\fR
-Process file <src> into <dst> for distribution, <type> is 'makefile', 
-'configure', 'non-source' or 'source' and defines the type of <src>.
+Process file <src> into <dst> for distribution, <type> is 'makefile', 'configure', 'non-source' or 'source' and defines the type of <src>.
 .PP
 .TP
 \fB\-m\fR, \fB\-\-makedist\fR
@@ -84,7 +83,7 @@ Create also package compressed with zip
 Copyright \(co 2005 Pekka Riikonen, SILC Project
 .br
 This is free software; see the source for copying conditions.  There is NO
-warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR
 PURPOSE.
 .SH "SEE ALSO"
 .BR autoconf (1),

@@ -117,7 +117,7 @@ The Autodist creates 'Makefile.am' files from 'Makefile.ad' files and
 ending with '.ad' suffix will also be processed.  The processed file will
 have the '.ad' suffix removed (@pxref{Preparing source tree, , , , }).
 Autodist also creates and packages the distribution using common GNU
-distribution creation process, specificly `make dist'.  Autodist, however,
+distribution creation process, specifically `make dist'.  Autodist, however,
 controls this process and during packaging phase the Autodist processes
 all files in the distribution (other than '*.ad' files, which has already
 been processed earlier by Autodist).  The resulted package is a processed
@@ -140,7 +140,7 @@ compile sources before they have been processed, and undefined lines
 are removed.  The distdefs are respected in source files by the
 preprocessor.
 
-Autodist is not a binary packaging system.  It is specificly used to
+Autodist is not a binary packaging system.  It is specifically used to
 create source distributions.  A binary packaging system, however can be
 hooked to the distribution creation process, if needed.
 
@@ -190,7 +190,7 @@ have had the need to create their own ad-hoc mechanisms to control
 distribution creation.  The Autodist attempts to provide a tool that any
 size software project can effectively use to manage their distributions.
 
-Without a tool like Autodist, large software projects usually has to be
+Without a tool like Autodist, large software projects usually have to be
 split into separate source trees, which may not always be possible because
 they may share large portions of common code (which may further make
 concurrent development of the applications hard), or multiple Autoconf and
@@ -573,7 +573,7 @@ Example new header:
 
 In this example, if the text in the current header file is found in any
 file in the distribution it will be replaced with the new header file.
-Notice that, both header files has same amount of lines (8 lines).
+Notice that, both header files have same amount of lines (8 lines).
 
 Note that, the current header must match exactly the header used in
 files.  Otherwise the replacement will not be complete.
@@ -622,15 +622,15 @@ distribution.  All distdefs, undefines, includes, excludes and noprocesses
 from these distributions are now also part this distribution.
 
 The distribution that is being prepared or packaged take precedence when 
-defining distdefs that were specificly undefined in the inherited 
-distribution.  This means that if the inherited distribution specificly 
+defining distdefs that were specifically undefined in the inherited 
+distribution.  This means that if the inherited distribution specifically 
 undefines a distdefs but the inheriting distribution (one being prepared 
-or packaged) specificly defines it, the distdef will be defined.  
+or packaged) specifically defines it, the distdef will be defined.  
 Similarly, if the inherited distribution defines a distdef but the 
 inheriting distribution undefines it, the distdef will be undefined.  
 Note that, this precedence works only in the top distribution (the one 
 being prepared or packaged).  If the inherited distribution inherits other 
-distributions, all distdefs (defined and specificly undefined) will be 
+distributions, all distdefs (defined and specifically undefined) will be 
 inherited as is.  This means that if one inherited distribution defines a 
 distdef that other inherited distribution distdef undefines, it will be 
 undefined.  However, the top distribution can then override them if 
@@ -805,7 +805,7 @@ This will exclude the file 'README' and anything that match 'doc/client*'.
 
 @section Directive: noprocess <filename> [...]
 
-The 'noprocess' directive can be used to tell Autodist specificly not to 
+The 'noprocess' directive can be used to tell Autodist specifically not to 
 process files or directories.  The Autodist will not process the files 
 during distribution packaging.  This directive is optional.  One or more 
 files can be specified in the 'noprocess' directive.  Zero or more 
@@ -1226,8 +1226,8 @@ SUBDIRS =                        \
        client                    \
 @end example
 
-The lines defined specificly for the SILC_DIST_TOOLKIT, which in our
-example was not defined, were removed.  Also lines that specificly
+The lines defined specifically for the SILC_DIST_TOOLKIT, which in our
+example was not defined, were removed.  Also lines that specifically
 expected certain distdefs not to be defined ('#ifndef') were removed.
 (Note the last remaining '\' in example above would be removed by the
 Autodist automatically to avoid errors with Automake.)
@@ -1449,7 +1449,7 @@ The Autodist will prepare your source tree.  After that you may run
 './configure' and continue to compile with 'make'.
 
 If you do not wish to use the 'default' distribution, or you wish
-to do the development in a tree specificly prepared for some specific
+to do the development in a tree specifically prepared for some specific
 distribution, or you are preparing to create a new distribution package,
 you will need to run the Autodist with the distribution you wish to
 prepare.
@@ -1478,7 +1478,7 @@ However, the source files, or any other file (except files ending with
 your sources the preprocessor, however, will respect your distdef
 conditionals inside your source files if you '#include' the distdef header
 file.  This way, even the compiled binaries will be compiled for that
-distribution, even though the source files has not yet been processed
+distribution, even though the source files have not yet been processed
 by the Autodist.  Rest of the files in the distribution will be processed
 when you create the actual distribution package.  It is guaranteed that
 the distribution you have prepared will behave in your source tree exactly
@@ -1715,7 +1715,7 @@ autodist
 This will prepare your source tree for configuration and compilation.  Since
 the 'default' distribution inherits all distributions your development
 source tree will have all of them included.  If you do not want to do this
-then don't inherit them in the 'default', but run the autodist specificly
+then don't inherit them in the 'default', but run the autodist specifically
 for the distributions, for example:
 
 @example
@@ -1724,7 +1724,7 @@ autodist foozbar
 
 Since all the distributions inherit the 'common' distribution they get
 all the distdefs that the 'common' defines.  In this example various distdefs
-has been defined.  You would use them in your code and in your makefiles
+have been defined.  You would use them in your code and in your makefiles
 to control various things.  For example, let's say the 'common' distdefs
 control what directories distributions have.  An example 'Makefile.ad'
 file:
@@ -1793,11 +1793,13 @@ Then you continue with libfoozbar and Nomad:
 @example
 autodist libfoozbar 1.0.5
 makedist
+@end example
 
 Nomad has also an RPM .spec file that you have written and a pre-dist-hook 
 that will replace the RPM release version with sed tool with the one you 
 give as extra parameter to autodist:
 
+@example
 autodist nomad 2.0 0.fc7
 makedist
 @end example
