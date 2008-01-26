@@ -570,8 +570,10 @@ ad_process_ads()
     ad_debug "Processing $i to be $fname"
     ad_log "  $i into $fname"
 
+    rm -f $fname
+
     # Run the distribution processing for this file
-    ad_process_file $i $fname false
+    ad_process_file $orig $fname false
 
     if test '!' -f "$fname"; then
       cp -p $orig $fname || exit 1
