@@ -49,7 +49,7 @@ level, and automatic relicensing of a distribution.
 * Integrating Autodist::        Integrating Autodist into your project
 * Invoking Autodist::           Running Autodist
 * Examples::                    Examples using Autodist
-* Download::			Download Autodist @url{http://silcnet.org/download/autodist/, Autodist @value{VERSION}}
+* Download::			Download @url{http://silcnet.org/download/autodist/, Autodist @value{VERSION}}
 
 @detailmenu
 Introduction

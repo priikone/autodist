@@ -1,3 +1,10 @@
+Thu Jan  8 14:42:02 EET 2009 Pekka Riikonen <priikone@silcnet.org>
+
+	* Fixed distdef prefix in processing.  Uses correclty the
+	  defined prefix now.
+
+	* Fixed finding of non-source files.
+
 Wed Jan 16 17:17:41 EET 2008 Pekka Riikonen <priikone@silcnet.org>
 
 	* Fixed *.ad (excluding configure.ad and Makefile.ad files)

@@ -836,9 +836,9 @@ ad_process_tree()
  	\! -name \*\.[cC][pP][pP] -a \
  	\! -name \*\.[cC]++ -a \
  	\! -name \*\.m -a \
- 	\! -name \*\.mm -o \
- 	\! -name \*\.M -o \
- 	\! -name \*\.S -o \
+ 	\! -name \*\.mm -a \
+ 	\! -name \*\.M -a \
+ 	\! -name \*\.S -a \
  	\! -name \*\.[hH] -a \
  	\! -name \*\.hh -a \
  	\! -name \*\.[cC]\.in -a \
@@ -1548,11 +1548,11 @@ ad_process_file()
   fi
 
   # Get defined distribution defines
-  defs=`awk "/^#ifdef "$DP"_DIST_|^#else "$DP"_DIST_/ { print; }" \
+  defs=`awk "/^#ifdef ${DP}_DIST_|^#else ${DP}_DIST_/ { print; }" \
     $1 |cut -d'*' -f2 |cut -d' ' -f2 | sort | uniq`
 
   # Get explicitly not-defined distribution defines
-  ndefs=`awk "/^#ifndef "$DP"_DIST_|^#else !"$DP"_DIST_/ { print; }" \
+  ndefs=`awk "/^#ifndef ${DP}_DIST_|^#else !${DP}_DIST_/ { print; }" \
     $1 |cut -d'*' -f2 |cut -d' ' -f2 | cut -d'!' -f2 | sort | uniq`
 
   ad_debug "defs in $1: $defs"
@@ -1659,11 +1659,11 @@ ad_process_source_file()
   fi
 
   # Get defined distribution defines
-  defs=`awk '/^#ifdef SILC_DIST_|^#else \/\* SILC_DIST_/ { print; }' \
+  defs=`awk "/^#ifdef ${DP}_DIST_|^#else \/\* ${DP}_DIST_/ { print; }" \
     $1 |cut -d'*' -f2 |cut -d' ' -f2 | sort | uniq`
 
   # Get explicitly not-defined distribution defines
-  ndefs=`awk '/^#ifndef SILC_DIST_|^#else \/\* \!SILC_DIST_/ { print; }' \
+  ndefs=`awk "/^#ifndef ${DP}_DIST_|^#else \/\* \!${DP}_DIST_/ { print; }" \
     $1 |cut -d'*' -f2 |cut -d' ' -f2 | cut -d'!' -f2 | sort | uniq`
 
   ad_debug "defs in $1: $defs"
@@ -1723,7 +1723,7 @@ ad_process_source_file()
 
     # Those distdef lines that remain in the file are removed to make
     # the appearance prettier
-    echo "/^#ifdef SILC_DIST_|^#endif \/\* SILC_DIST_|^#else \/\* SILC_DIST_|^#else \/\* \!SILC_DIST_|^#ifndef SILC_DIST_/ { next; }" >> $f
+    echo "/^#ifdef "$DP"_DIST_|^#endif \/\* "$DP"_DIST_|^#else \/\* "$DP"_DIST_|^#else \/\* \!"$DP"_DIST_|^#ifndef "$DP"_DIST_/ { next; }" >> $f
     echo "{ print; }" >> $f
 
     # Execute the script

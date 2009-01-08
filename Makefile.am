@@ -18,6 +18,3 @@
 AUTOMAKE_OPTIONS = 1.0 no-dependencies foreign
 
 SUBDIRS = apps
-
-EXTRA_DIST = 		\
-	CHANGES CREDITS
