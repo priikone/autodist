@@ -1,0 +1,88 @@
+<html lang="en">
+<head>
+<title>Invoking Autodist - autodist</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="autodist">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="prev" href="Integrating-Autodist.html#Integrating-Autodist" title="Integrating Autodist">
+<link rel="next" href="Examples.html#Examples" title="Examples">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+Autodist is a source distribution management system that allows powerful
+mechanisms to define what is included in and excluded from a distribution
+and what license is used. It is especially targeted at large software
+projects that create multiple distributions from a source tree. Autodist
+supports distribution management in directory, file, and file content
+level, and automatic relicensing of a distribution.-->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Invoking-Autodist"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="Examples.html#Examples">Examples</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Integrating-Autodist.html#Integrating-Autodist">Integrating Autodist</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="index.html#Top">Top</a>
+<hr>
+</div>
+
+<h2 class="chapter">3 Invoking Autodist</h2>
+
+<p>The Autodist has two basic functions:
+
+   <p>1. Preparing source tree for configuration and compilation (see <a href="Preparing-source-tree.html#Preparing-source-tree">Preparing source tree</a>)
+
+   <p>2. Creating distribution packages (see <a href="Creating-distribution.html#Creating-distribution">Creating distribution</a>)
+
+   <p>The 'autodist' accepts the following options:
+
+     <dl>
+<dt>`<samp><span class="samp">-h</span></samp>'<dt>`<samp><span class="samp">--help</span></samp>'<dd>Prints the help for the Autodist and exits.
+
+     <br><dt>`<samp><span class="samp">-V</span></samp>'<dt>`<samp><span class="samp">--version</span></samp>'<dd>Prints version number and exits.
+
+     <br><dt>`<samp><span class="samp">-v</span></samp>'<dt>`<samp><span class="samp">--verbose</span></samp>'<dd>Verbosely report processing.
+
+     <br><dt>`<samp><span class="samp">-d</span></samp>'<dt>`<samp><span class="samp">--distdir &lt;dir&gt;</span></samp>'<dd>Search distributions from &lt;dir&gt; instead of default 'distdir'.
+
+     <br><dt>`<samp><span class="samp">-s</span></samp>'<dt>`<samp><span class="samp">--distdefs [&lt;dist&gt;]</span></samp>'<dd>Prints distribution defines of &lt;dist&gt; and exits.
+
+     <br><dt>`<samp><span class="samp">-i</span></samp>'<dt>`<samp><span class="samp">--init</span></samp>'<dd>Initializes Autodist environment.  Creates the default distribution
+directory 'distdir', 'autodist.conf' configuration file and the
+default distribution 'default', then exits.
+
+     <br><dt>`<samp><span class="samp">-p</span></samp>'<dt>`<samp><span class="samp">--process &lt;type&gt; &lt;src&gt; &lt;dst&gt;</span></samp>'<dd>Process file &lt;src&gt; into &lt;dst&gt; for distribution, &lt;type&gt; is 'makefile',
+'configure', 'non-source' or 'source' and defines the type of &lt;src&gt;,
+then exits.
+
+     <br><dt>`<samp><span class="samp">-m</span></samp>'<dt>`<samp><span class="samp">--makedist</span></samp>'<dd>Creates and packages distribution
+
+     <dt>`<samp><span class="samp">--gzip</span></samp>'<dd>Create package compressed with gzip (default)
+
+     <dt>`<samp><span class="samp">--bzip2</span></samp>'<dd>Create also package compressed with bzip2
+
+     <dt>`<samp><span class="samp">--compress</span></samp>'<dd>Create also package compressed with compress
+
+     <dt>`<samp><span class="samp">--zip</span></samp>'<dd>Create also package compressed with zip
+
+   </dl>
+
+<ul class="menu">
+<li><a accesskey="1" href="Preparing-source-tree.html#Preparing-source-tree">Preparing source tree</a>:        Preparing source tree with Autodist
+<li><a accesskey="2" href="Creating-distribution.html#Creating-distribution">Creating distribution</a>:        Creating distribution with Autodist
+</ul>
+
+   </body></html>
+

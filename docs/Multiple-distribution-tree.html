@@ -1,0 +1,196 @@
+<html lang="en">
+<head>
+<title>Multiple distribution tree - autodist</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="autodist">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Examples.html#Examples" title="Examples">
+<link rel="prev" href="Single-distribution-tree.html#Single-distribution-tree" title="Single distribution tree">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+Autodist is a source distribution management system that allows powerful
+mechanisms to define what is included in and excluded from a distribution
+and what license is used. It is especially targeted at large software
+projects that create multiple distributions from a source tree. Autodist
+supports distribution management in directory, file, and file content
+level, and automatic relicensing of a distribution.-->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Multiple-distribution-tree"></a>
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Single-distribution-tree.html#Single-distribution-tree">Single distribution tree</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Examples.html#Examples">Examples</a>
+<hr>
+</div>
+
+<h3 class="section">4.2 Multiple distribution tree example, start to finish</h3>
+
+<p>Lets suppose you have a source tree from which you create multiple
+distributions, say three.  If you really have a such source tree you
+must have by now noticed the difficulty of maintaining such a source tree
+and problems with controlling the distributions.  Maybe you have sufficed
+with Autoconf and Automake, or perhaps you have created your own scripts
+that carry out the kludges.  No more, for Autodist is here.
+
+   <p>First, you integrate Autodist into your tree by creating the distributions
+directory 'distdir':
+
+<pre class="example">       autodist -i
+</pre>
+   <p>Then, you create the 'configure.ad' file from your existing 'configure.ac'
+or 'configure.in' file.  If you don't have configure script written yet,
+please refer to the Autoconf manual.  In the 'configure.ad' you add as
+first macro in the file:
+
+<pre class="example">       AD_INIT
+</pre>
+   <p>You then continue with creating the distribution files for your three
+distributions.  Let's name them 'foozbar', 'libfoozbar' and 'nomad'. 
+We will also create a common template that all distributions inherit.
+
+<pre class="example">     # Foozbar distribution
+     name Foozbar
+     package foozbar
+     bug-report foozbar-bugs@foo.z.bar
+     inherit common
+     define _DIST_FOOZBAR
+</pre>
+   <pre class="example">     # libfoozbar distribution
+     name libfoozbar
+     bug-report libfoozbar-bugs@foo.z.bar
+     inherit common
+     define _DIST_LIBFOOZBAR
+</pre>
+   <pre class="example">     # Nomad distribution
+     name Nomad
+     package nomad-the-server
+     bug-report nomad-bugs@foo.z.bar
+     inherit common
+     include doc/nomad
+     define _DIST_NOMAD
+     define _DIST_NOMAD_LIB
+     undef _DIST_CRYPTO
+     pre-dist-hook nomad-pre-dist-hook
+</pre>
+   <pre class="example">     # Common template
+     option template
+     define _DIST_DOC
+     define _DIST_LIB
+     define _DIST_MATH
+     define _DIST_CRYPTO
+     define _DIST_UNIX
+     define _DIST_MACOSX
+     define _DIST_WIN32
+</pre>
+   <p>You put the distribution files in the 'distdir' directory.  In addition
+you will be doing development in the source tree using the 'default'
+distribution, you will add the new distributions to the 'distdir/default':
+
+<pre class="example">     inherit foozbar
+     inherit libfoozbar
+     inherit nomad
+</pre>
+   <p>To prepare the source tree for configuration and compilation you would
+simply give:
+
+<pre class="example">     autodist
+</pre>
+   <p>This will prepare your source tree for configuration and compilation.  Since
+the 'default' distribution inherits all distributions your development
+source tree will have all of them included.  If you do not want to do this
+then don't inherit them in the 'default', but run the autodist specifically
+for the distributions, for example:
+
+<pre class="example">     autodist foozbar
+</pre>
+   <p>Since all the distributions inherit the 'common' distribution they get
+all the distdefs that the 'common' defines.  In this example various distdefs
+have been defined.  You would use them in your code and in your makefiles
+to control various things.  For example, let's say the 'common' distdefs
+control what directories distributions have.  An example 'Makefile.ad'
+file:
+
+<pre class="example">     SUBDIRS =                       \
+     #ifdef _DIST_LIB
+            lib                      \
+     #endif _DIST_LIB
+     #ifdef _DIST_DOC
+            doc                      \
+     #endif _DIST_DOC
+</pre>
+   <p>Perhaps the 'Makefile.ad' in 'lib' subdirectory could define something
+like this:
+
+<pre class="example">     SUBDIRS =                       \
+             util                    \
+     #ifdef _DIST_MATH
+             mathlib                 \
+     #endif _DIST_MATH
+     #ifdef _DIST_CRYPTO
+             cryptolib               \
+     #endif _DIST_CRYPTO
+     #ifdef _DIST_NOMAD_LIB
+             nomadlib                \
+     #endif _DIST_NOMAD_LIB
+     #ifdef _DIST_LIBFOOZBAR
+             foozbarlib               \
+     #endif _DIST_LIBFOOZBAR
+</pre>
+   <p>Since the 'nomad' distribution undefined the '_DIST_CRYPTO' distdef it
+would not have the 'cryptolib' in its distribution.  Clearly Nomad
+don't need it.  In addition of using the distdefs just in the makefiles
+you may want to use them in the source code as well:
+
+<pre class="example">          ...some code...
+     
+     #ifdef _DIST_MATH
+       /* Initialize math library */
+       math_init();
+     #endif /* _DIST_MATH */
+     
+          ...some code...
+</pre>
+   <p>After an intensive development period you're ready to create new releases. 
+Let's say you're going to release all distributions:
+
+   <p>First you release Foozbar 0.5.1:
+
+<pre class="example">     autodist foozbar 0.5.1
+     makedist --bzip2
+</pre>
+   <p>The end result is two files: 'foozbar-0.5.1.tar.gz' and
+'foozbar-0.5.1.tar.bz2'.
+
+   <p>Then you continue with libfoozbar and Nomad:
+
+<pre class="example">     autodist libfoozbar 1.0.5
+     makedist
+</pre>
+   <p>Nomad has also an RPM .spec file that you have written and a pre-dist-hook
+that will replace the RPM release version with sed tool with the one you
+give as extra parameter to autodist:
+
+<pre class="example">     autodist nomad 2.0 0.fc7
+     makedist
+</pre>
+   <p>The end results are: 'libfoozbar-1.0.5.tar.gz' and 'nomad-2.0.tar.gz', and
+the RPM will have a release version '0.fc7' when you compile the RPM.  Any
+extra parameter that you pass to autodist will be delivered to your hook
+scripts.
+
+   </body></html>
+

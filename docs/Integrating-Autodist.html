@@ -1,0 +1,83 @@
+<html lang="en">
+<head>
+<title>Integrating Autodist - autodist</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="autodist">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="prev" href="Introduction.html#Introduction" title="Introduction">
+<link rel="next" href="Invoking-Autodist.html#Invoking-Autodist" title="Invoking Autodist">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+Autodist is a source distribution management system that allows powerful
+mechanisms to define what is included in and excluded from a distribution
+and what license is used. It is especially targeted at large software
+projects that create multiple distributions from a source tree. Autodist
+supports distribution management in directory, file, and file content
+level, and automatic relicensing of a distribution.-->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Integrating-Autodist"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="Invoking-Autodist.html#Invoking-Autodist">Invoking Autodist</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Introduction.html#Introduction">Introduction</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="index.html#Top">Top</a>
+<hr>
+</div>
+
+<h2 class="chapter">2 Integrating Autodist</h2>
+
+<p>Integrating Autodist into existing software project can be a very simple
+task or a fairly complicated task.  It depends on the size and complexity
+of the software project.  Generally speaking, integrating Autodist into
+software project is fairly straightforward process:
+
+   <p>1. The distributions directory and 'default' distribution are created
+
+   <p>2. The 'configure.ad' is created
+
+   <p>3. If needed, 'Makefile.ad' file(s) are created
+
+   <p>After this the Autodist can already be used to prepare the source tree
+for configuration and compilation (see <a href="Preparing-source-tree.html#Preparing-source-tree">Preparing source tree</a>). 
+Adding a new distribution would then allow the actual distribution
+packaging also.
+
+   <p>If the software project has had own ad-hoc distribution system already in
+place, it may take some work to move from that system into the Autodist. 
+If there are multiple applications and distributions created from the
+source tree, the distributions and distribution defines for them need to
+be created.  While this may be unthankful job, it only needs to be done
+once.
+
+   <p>Integrating Autodist into a new software project is a very simple task as
+renaming 'configure.ac' and possibly 'Makefile.am' files are not required,
+as they may not exist yet.
+
+<ul class="menu">
+<li><a accesskey="1" href="Creating-distdir.html#Creating-distdir">Creating distdir</a>:             Creating distributions directory
+<li><a accesskey="2" href="autodist_002econf.html#autodist_002econf">autodist.conf</a>:                Configuring Autodist
+<li><a accesskey="3" href="Creating-new-distribution.html#Creating-new-distribution">Creating new distribution</a>:    Adding new distribution
+<li><a accesskey="4" href="Distribution-file-format.html#Distribution-file-format">Distribution file format</a>:     Detailed document for distfile format
+<li><a accesskey="5" href="configure_002ead-files.html#configure_002ead-files">configure.ad files</a>:           configure script for creating configure.ac
+<li><a accesskey="6" href="Makefile_002ead-files.html#Makefile_002ead-files">Makefile.ad files</a>:            Makefile.ad for creating Makefile.am
+<li><a accesskey="7" href="Other-_002ead-files.html#Other-_002ead-files">Other .ad files</a>:              Other files with .ad suffix
+<li><a accesskey="8" href="Distdefines.html#Distdefines">Distdefines</a>:                  Using distdefs in files
+<li><a accesskey="9" href="Dependencies.html#Dependencies">Dependencies</a>:                 Autodist dependency support
+</ul>
+
+   </body></html>
+

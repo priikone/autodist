@@ -1,0 +1,64 @@
+<html lang="en">
+<head>
+<title>Makefile.ad files - autodist</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="autodist">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Integrating-Autodist.html#Integrating-Autodist" title="Integrating Autodist">
+<link rel="prev" href="configure_002ead-files.html#configure_002ead-files" title="configure.ad files">
+<link rel="next" href="Other-_002ead-files.html#Other-_002ead-files" title="Other .ad files">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+Autodist is a source distribution management system that allows powerful
+mechanisms to define what is included in and excluded from a distribution
+and what license is used. It is especially targeted at large software
+projects that create multiple distributions from a source tree. Autodist
+supports distribution management in directory, file, and file content
+level, and automatic relicensing of a distribution.-->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Makefile.ad-files"></a>
+<a name="Makefile_002ead-files"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="Other-_002ead-files.html#Other-_002ead-files">Other .ad files</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="configure_002ead-files.html#configure_002ead-files">configure.ad files</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Integrating-Autodist.html#Integrating-Autodist">Integrating Autodist</a>
+<hr>
+</div>
+
+<h3 class="section">2.27 Makefile.ad files</h3>
+
+<p>Autodist creates 'Makefile.am' files from 'Makefile.ad' files.  A software
+project do not need to use 'Makefile.ad' files if there is no need to
+use distdef conditionals inside makefiles.  Usually a multi distribution
+software project, however will need to define certain things to different
+distributions.  In these cases 'Makefile.ad' file needs to be created.
+
+   <p>Even though it would be possible to use distdef conditionals also inside
+'Makefile.am' files, Autodist does not process 'Makefile.am' files when
+preparing the source tree for configuration and compilation (see <a href="Preparing-source-tree.html#Preparing-source-tree">Preparing source tree</a>).  Thus, the prepared environment would not be
+identical to the created distribution package (when the 'Makefile.am'
+will be processed), and configuration and compilation would be inconsistent. 
+Basic rule is, if you need distdefs (see <a href="Distdefines.html#Distdefines">Distdefines</a>) inside
+makefiles, put them inside 'Makefile.ad' file.
+
+<ul class="menu">
+<li><a accesskey="1" href="Other-_002ead-files.html#Other-_002ead-files">Other .ad files</a>:              Other files with .ad suffix
+</ul>
+
+   </body></html>
+

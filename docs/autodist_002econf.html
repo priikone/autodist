@@ -1,0 +1,117 @@
+<html lang="en">
+<head>
+<title>autodist.conf - autodist</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="autodist">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Integrating-Autodist.html#Integrating-Autodist" title="Integrating Autodist">
+<link rel="prev" href="Creating-distdir.html#Creating-distdir" title="Creating distdir">
+<link rel="next" href="Creating-new-distribution.html#Creating-new-distribution" title="Creating new distribution">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+Autodist is a source distribution management system that allows powerful
+mechanisms to define what is included in and excluded from a distribution
+and what license is used. It is especially targeted at large software
+projects that create multiple distributions from a source tree. Autodist
+supports distribution management in directory, file, and file content
+level, and automatic relicensing of a distribution.-->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="autodist.conf"></a>
+<a name="autodist_002econf"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="Creating-new-distribution.html#Creating-new-distribution">Creating new distribution</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Creating-distdir.html#Creating-distdir">Creating distdir</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Integrating-Autodist.html#Integrating-Autodist">Integrating Autodist</a>
+<hr>
+</div>
+
+<h3 class="section">2.2 Configuring Autodist</h3>
+
+<p>After the Autodist has been integrated into the software by creating
+the 'distdir', the 'autodist.conf' configuration file was added to the
+'distdir' also.  Usually software projects will want to modify some of
+the 'autodist.conf' options, mainly specifying the distdef prefix.
+
+   <p>The 'autodist.conf' is a text file.  The following options are available
+in 'autodist.conf':
+
+<pre class="example">     DISTPREFIX=""
+</pre>
+   <p>By default the distdef prefix is '_DIST_'.  To add own software package
+specific prefix the 'DISTPREFIX' can be defined.
+
+   <p>Example:
+<pre class="example">     DISTPREFIX="SILC"
+</pre>
+   <p>Will set the distdef prefix as 'SILC_DIST_'.
+
+<pre class="example">     DISTDEFS="distdefs.h"
+</pre>
+   <p>The 'DISTDEFS' option specifies the file name of the distdef header file
+which Autodist will create.  The software project should '#include' the
+header file in order for the preprocessor to respect the distdef
+conditionals (see <a href="Distdefines.html#Distdefines">Distdefines</a>).  By default the file name
+is 'distdefs.h' and is created at the root of source tree.  Other location
+may be specified if needed.
+
+   <p>Example:
+<pre class="example">     DISTDEFS="include/distdefs.h"
+</pre>
+   <pre class="example">     ACLOCAL="aclocal"
+</pre>
+   <p>The 'ACLOCAL' specifies the location of the 'aclocal' tool.  If Autodist
+should not run 'aclocal' this option may be removed or set to empty value. 
+User need to then run it manually.
+
+<pre class="example">     AUTOHEADER="autoheader"
+</pre>
+   <p>The 'AUTOHEADER' specifies the location of the 'autoheader' tool.  If
+Autodist should not run 'autoheader' this option may be removed or set
+to empty value.  User need to then run it manually.
+
+<pre class="example">     AUTOCONF="autoconf"
+</pre>
+   <p>The 'AUTOCONF' specifies the location of the 'autoconf' tool.  If
+Autodist should not run 'autoconf' this option may be removed or set
+to empty value.  User need to then run it manually.
+
+<pre class="example">     AUTOMAKE="automake -a -c"
+</pre>
+   <p>The 'AUTOMAKE' specifies the location of the 'automake' tool.  If
+Autodist should not run 'automake' this option may be removed or set
+to empty value.  User need to then run it manually.  By default, the
+'-a'  and '-c' options are given to 'automake' to add any missing required
+files.
+
+<pre class="example">     LIBTOOLIZE="libtoolize --automake -c"
+</pre>
+   <p>The 'LIBTOOLIZE' specifies the location of the 'libtoolize' tool. 
+This option should be removed or ste to empty value if 'libtool' is not
+used in the source tree.
+
+<pre class="example">     MAKE=make
+</pre>
+   <p>The 'MAKE' specifies the location of the 'make' program.  This option must
+be set to valid value in order to create distributions.
+
+<ul class="menu">
+<li><a accesskey="1" href="Creating-new-distribution.html#Creating-new-distribution">Creating new distribution</a>:    Adding new distribution
+</ul>
+
+   </body></html>
+

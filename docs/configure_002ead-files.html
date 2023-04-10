@@ -1,0 +1,122 @@
+<html lang="en">
+<head>
+<title>configure.ad files - autodist</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="autodist">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Integrating-Autodist.html#Integrating-Autodist" title="Integrating Autodist">
+<link rel="prev" href="Distribution-file-format.html#Distribution-file-format" title="Distribution file format">
+<link rel="next" href="Makefile_002ead-files.html#Makefile_002ead-files" title="Makefile.ad files">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+Autodist is a source distribution management system that allows powerful
+mechanisms to define what is included in and excluded from a distribution
+and what license is used. It is especially targeted at large software
+projects that create multiple distributions from a source tree. Autodist
+supports distribution management in directory, file, and file content
+level, and automatic relicensing of a distribution.-->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="configure.ad-files"></a>
+<a name="configure_002ead-files"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="Makefile_002ead-files.html#Makefile_002ead-files">Makefile.ad files</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Distribution-file-format.html#Distribution-file-format">Distribution file format</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Integrating-Autodist.html#Integrating-Autodist">Integrating Autodist</a>
+<hr>
+</div>
+
+<h3 class="section">2.26 configure.ad files</h3>
+
+<p>Autodist creates 'configure.ac' file from the 'configure.ad' file.  The
+'configure.ad' file is a rather normal 'configure.ac' except that it accepts
+also Autodist macros.  Autodist also supports configure script fragments,
+also named as 'configure.ad'.  Any 'configure.ad' file in the source tree
+can be incorporated into the the top 'configure.ad' file.  Sometimes it may
+be useful to split a large configure script into smaller fragments. 
+Especially in multi distribution system where certain libraries or features
+can be excluded from certain distributions it may be useful to handle
+their configuration from a configure fragment.  If the library is
+excluded then also its configuration can be excluded.
+
+   <p>If the software project already has a 'configure.ac' or 'configure.in'
+file, the 'configure.ad' can be created by simply renaming the current
+file to 'configure.ad'.  In this case the current configure script
+must be edited to support Autodist.  This is done by replacing the
+'AC_INIT' to 'AD_INIT'.  After specifying the 'AD_INIT' as the first
+macro in the 'configure.ad', the Autodist support has been fully
+integrated into the software project.
+
+   <p>If your software project is going to use configure fragments, then
+also Autodist macro 'AD_INCLUDE_CONFIGURE' must be used.  Autodist will
+automatically combine the fragments with the top 'configure.ac' script. 
+To exclude a 'configure.ad' fragment from a distribution use the distdef
+conditionals inside the 'configure.ad' fragment file.  If the distdef is
+not defined the fragment will be excluded automatically.
+
+   <p>The following macros are available in current Autodist version.
+
+<div class="defun">
+&mdash; Macro: <b>AD_INIT</b><var><a name="index-AD_005fINIT-1"></a></var><br>
+<blockquote>
+<p>The 'AD_INIT' macro is used in place of Autoconf macro 'AC_INIT'.  The
+'AD_INIT' must be the first macro in the 'configure.ad', just like the
+'AC_INIT' macro in 'configure.ac'.  The AD_INIT macro is used to deliver
+the distribution names, distribution version, package name and bug-report
+email address to the 'configure.ac' file that Autodist will create. 
+The 'AC_INIT' macro must not be used in 'configure.ad' file.
+
+        <p>This macro is mandatory and Autodist will exit with error if it is not
+specified in 'configure.ad'.  This macro has no arguments. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AD_INCLUDE_CONFIGURE</b><var><a name="index-AD_005fINCLUDE_005fCONFIGURE-2"></a></var><br>
+<blockquote>
+<p>This macro is used to tell Autodist that it should include any other
+'configure.ad' fragment that is found from the source tree into the
+top 'configure.ad' file.  Note that, the 'configure.ad' fragments will
+be incorporated at the location where this macro is used in the
+'configure.ad'.  Usually this macro is placed just before the Autoconf
+macro 'AC_OUTPUT'.  This macro has no arguments.
+
+        <p>Note that, the 'configure.ad' fragments are not real full featured
+configure scripts.  They must not use 'AD_INIT', 'AD_INCLUDE_CONFIGURE',
+'AC_INIT' or any other initialization macros. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AD_DISABLE_DEPENDENCIES</b><var><a name="index-AD_005fDISABLE_005fDEPENDENCIES-3"></a></var><br>
+<blockquote>
+<p>This macro is used to disable Autodist dependencies.  If this macro is
+used, then after editing 'Makefile.ad' and 'configure.ad' files the
+Autodist must be run manually.  When dependencies are enabled Autodist is
+run automatically when source is compiled with 'make'.  Dependencies make
+the development easier.  This macro has no arguments.
+
+        <p>Note that, the dependencies are enabled only in the prepared source tree. 
+Depedencies are not delivered to distribution, as they would require the
+presence of 'Makefile.ad' and 'configure.ad' files, which are not
+delivered to distribution. 
+</p></blockquote></div>
+
+<ul class="menu">
+<li><a accesskey="1" href="Makefile_002ead-files.html#Makefile_002ead-files">Makefile.ad files</a>:            Makefile.ad for creating Makefile.am
+</ul>
+
+   </body></html>
+

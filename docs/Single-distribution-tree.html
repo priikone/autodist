@@ -1,0 +1,96 @@
+<html lang="en">
+<head>
+<title>Single distribution tree - autodist</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="autodist">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Examples.html#Examples" title="Examples">
+<link rel="next" href="Multiple-distribution-tree.html#Multiple-distribution-tree" title="Multiple distribution tree">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+Autodist is a source distribution management system that allows powerful
+mechanisms to define what is included in and excluded from a distribution
+and what license is used. It is especially targeted at large software
+projects that create multiple distributions from a source tree. Autodist
+supports distribution management in directory, file, and file content
+level, and automatic relicensing of a distribution.-->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Single-distribution-tree"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="Multiple-distribution-tree.html#Multiple-distribution-tree">Multiple distribution tree</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Examples.html#Examples">Examples</a>
+<hr>
+</div>
+
+<h3 class="section">4.1 Single distribution tree example, start to finish</h3>
+
+<p>Lets suppose you have a simple source tree with one application,
+called 'foozbar' you wish to release.  While you would probably suffice
+using Autoconf and Automake features you may still use Autodist.
+
+   <p>First, you create the default 'distdir' into your software package:
+
+<pre class="example">       autodist -i
+</pre>
+   <p>Then, you create the 'configure.ad' file from your existing 'configure.ac'
+or 'configure.in' file.  If you don't have configure script written yet,
+please refer to the Autoconf manual.  In the 'configure.ad' you add as
+first macro in the file:
+
+<pre class="example">       AD_INIT
+</pre>
+   <p>Then, you create distribution file for your application:
+
+<pre class="example">     # Foozbar distribution
+     name Foozbar
+     package foozbar
+     bug-report foozbar-bugs@foo.z.bar
+     define _DIST_FOOZBAR
+</pre>
+   <p>This distribution file go into 'distdir/foozbar'.
+
+   <p>And there you go.  You have succesfully integrated Autodist into your
+source tree.  If you need to do development and you wish to use the
+'default' distribution for that, you should inherit the new 'foozbar'
+distribution in it.  Add the following line in 'distdir/default':
+
+<pre class="example">       inherit foozbar
+</pre>
+   <p>After that, you can prepare the source tree for configuration and
+compilation by giving:
+
+<pre class="example">       autodist
+</pre>
+   <p>After this command you can give './configure' and 'make'.
+
+   <p>If you want to do development directly in a tree prepared for the
+'foozbar' distribution, or you are ready to start creating a new
+distribution package, you give:
+
+<pre class="example">       autodist foozbar 1.0
+</pre>
+   <p>After this command you can give './configure' and 'make'.
+
+   <p>To create the distribution package, you will give:
+
+<pre class="example">       makedist
+</pre>
+   <p>The end result will be a 'foozbar-1.0.tar.gz' package.
+
+   </body></html>
+

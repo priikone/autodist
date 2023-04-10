@@ -1,0 +1,127 @@
+<html lang="en">
+<head>
+<title>Preparing source tree - autodist</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="autodist">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Invoking-Autodist.html#Invoking-Autodist" title="Invoking Autodist">
+<link rel="next" href="Creating-distribution.html#Creating-distribution" title="Creating distribution">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+Autodist is a source distribution management system that allows powerful
+mechanisms to define what is included in and excluded from a distribution
+and what license is used. It is especially targeted at large software
+projects that create multiple distributions from a source tree. Autodist
+supports distribution management in directory, file, and file content
+level, and automatic relicensing of a distribution.-->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Preparing-source-tree"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="Creating-distribution.html#Creating-distribution">Creating distribution</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Invoking-Autodist.html#Invoking-Autodist">Invoking Autodist</a>
+<hr>
+</div>
+
+<h3 class="section">3.1 Preparing source tree for configuration and compilation</h3>
+
+<p>Before distribution can be created from the source tree, the source tree
+must be prepared for configuration and compilation.  If your project is
+not using Autodist, then you would do this by running perhaps 'aclocal',
+'autoconf', 'autoheader' and 'automake' tools manually, or you would run an
+'autogen.sh' script that prepares your raw source tree.  With Autodist
+this process is performed by Autodist, and running these tools manually
+or using 'autogen.sh' script is not necessary.
+
+   <p>By default the 'autodist.conf' (see <a href="autodist_002econf.html#autodist_002econf">autodist.conf</a>) has defined
+the tools that will be run by the Autodist when preparing the source tree. 
+These are 'aclocal', 'autoheader', 'autoconf', 'automake' and
+'libtoolize'.  If you do not wish that Autodist runs some or any of these
+tools automatically, do not set them in the 'autodist.conf'.  You would
+then need to run them manually. However, this is not recommended.  If you
+need to run additional preparation scripts you may set your scripts either
+in the 'pre-hook' and/or 'post-hook' where you can run what ever
+additional processing you may need to prepare your source tree.
+
+   <p>By default the Autodist creates a 'default' distribution when you
+initialize your project by running 'autodist -i'.  The 'default'
+distribution should be used when you are developing in your source
+tree.  By default, the 'default' distribution cannot be packaged,
+however, if your project creates only one distribution you may find
+it more convenient to define your distribution inside the 'default'
+distribution and allow it to be packaged also.  If your source tree
+will create multiple distributions, the 'default' should be used only
+as development distribution.  You would use it when you, for example,
+checkout your source tree from CVS and prepare it for configuration
+and compilation.  To prepare your source tree with the 'default'
+distribution run Autodist without any arguments.
+
+<pre class="example">       autodist
+</pre>
+   <p>The Autodist will prepare your source tree.  After that you may run
+'./configure' and continue to compile with 'make'.
+
+   <p>If you do not wish to use the 'default' distribution, or you wish
+to do the development in a tree specifically prepared for some specific
+distribution, or you are preparing to create a new distribution package,
+you will need to run the Autodist with the distribution you wish to
+prepare.
+
+<pre class="example">       autodist example-distribution 1.0.3
+</pre>
+   <p>This prepares your source tree for 'example-distribution' of version
+'1.0.3'.  After that you may run './configure' and continue to compile
+with 'make'.  If the version is omitted the version will be '0.0'. 
+The 'PACKAGE_VERSION' define delivered by Autoconf will contain this
+version.
+
+   <p>Note that, running Autodist for preparation merely prepares your source
+tree for the distribution, it does not create an actual distribution
+package.  When preparing source tree for configuration and compilation
+the Autodist will process any file that ends with '.ad' suffix.  It will
+process all 'configure.ad' and 'Makefile.ad' files for that distribution. 
+When you run './configure' your tree will be configured for that
+distribution, and when you compile with 'make' it will compile for that
+distribution.
+
+   <p>However, the source files, or any other file (except files ending with
+'.ad' suffix) are not processed by the Autodist.  When compiling
+your sources the preprocessor, however, will respect your distdef
+conditionals inside your source files if you '#include' the distdef header
+file.  This way, even the compiled binaries will be compiled for that
+distribution, even though the source files have not yet been processed
+by the Autodist.  Rest of the files in the distribution will be processed
+when you create the actual distribution package.  It is guaranteed that
+the distribution you have prepared will behave in your source tree exactly
+the same way as if it was already packaged with Autodist (providing that
+you remember to include the distdef header file in your code).
+
+   <p>When preparing the source tree Autodist will create a file 'autodist.dist'
+which will contain information on the prepared distribution.  When
+Creating the distribution that file will be read by the Autodist
+automatically.  That file should not be removed or the distribution
+cannot be packaged.
+
+   <p>Autodist also created a log file, 'autodist.log', that will include
+messages created by Autodist during preparation.
+
+<ul class="menu">
+<li><a accesskey="1" href="Creating-distribution.html#Creating-distribution">Creating distribution</a>:        Creating distribution with Autodist
+</ul>
+
+   </body></html>
+

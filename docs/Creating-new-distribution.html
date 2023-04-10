@@ -1,0 +1,74 @@
+<html lang="en">
+<head>
+<title>Creating new distribution - autodist</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="autodist">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Integrating-Autodist.html#Integrating-Autodist" title="Integrating Autodist">
+<link rel="prev" href="autodist_002econf.html#autodist_002econf" title="autodist.conf">
+<link rel="next" href="Distribution-file-format.html#Distribution-file-format" title="Distribution file format">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+Autodist is a source distribution management system that allows powerful
+mechanisms to define what is included in and excluded from a distribution
+and what license is used. It is especially targeted at large software
+projects that create multiple distributions from a source tree. Autodist
+supports distribution management in directory, file, and file content
+level, and automatic relicensing of a distribution.-->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Creating-new-distribution"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="Distribution-file-format.html#Distribution-file-format">Distribution file format</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="autodist_002econf.html#autodist_002econf">autodist.conf</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Integrating-Autodist.html#Integrating-Autodist">Integrating Autodist</a>
+<hr>
+</div>
+
+<h3 class="section">2.3 Creating new distribution</h3>
+
+<p>After the Autodist has been integrated into the software project by
+creating the 'distdir' and 'default' distribution, the source tree
+can be prepared for configuration and compilation (see <a href="Preparing-source-tree.html#Preparing-source-tree">Preparing source tree</a>).  However, the 'default' distribution should be used only as
+a development distribution.  Usually it is used to prepare the raw source
+tree (such as a tree just checkout
+from CVS) for configuration and compilation.  By default, the 'default'
+distribution cannot be packaged.  However, if the software project is
+small (one distribution), it may be convenient to edit the 'default'
+distribution to be as the distribution that is packaged from the source
+tree.  In software project where multiple distributions are created using
+the 'default' only as a development distribution is recommended.  The
+real distributions should be defined as separate distributions.
+
+   <p>Creating a new distribution is a simple process.  Each distribution
+is placed in the 'distdir' and the file name of the distribution file is
+used to reference to it.  By default, the distribution name is the
+file name of the distribution file.  The actual distribution file is
+a simple text file with various directives that define the distribution.
+
+   <p>If the 'default' distribution is used as a development distribution it
+might be desired to inherit some or all of the created distributions in
+it, so that development becomes possible with the 'default' distribution. 
+Adding 'inherit' directive into the 'distdir/default' will inherit the
+specified distribution.
+
+<ul class="menu">
+<li><a accesskey="1" href="Distribution-file-format.html#Distribution-file-format">Distribution file format</a>:     Detailed document for distfile format
+</ul>
+
+   </body></html>
+

@@ -1,0 +1,89 @@
+<html lang="en">
+<head>
+<title>Motivation - autodist</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="autodist">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Introduction.html#Introduction" title="Introduction">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+Autodist is a source distribution management system that allows powerful
+mechanisms to define what is included in and excluded from a distribution
+and what license is used. It is especially targeted at large software
+projects that create multiple distributions from a source tree. Autodist
+supports distribution management in directory, file, and file content
+level, and automatic relicensing of a distribution.-->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Motivation"></a>
+Up:&nbsp;<a rel="up" accesskey="u" href="Introduction.html#Introduction">Introduction</a>
+<hr>
+</div>
+
+<h3 class="section">1.1 Reasons for using Autodist</h3>
+
+<p>Autodist is closely related to the Autoconf and Automake tools, and
+complements the features Autoconf and Automake provides.  It is especially
+targeted into circumstances where multiple distributions are created from
+one source tree.  The Autoconf and Automake environment is mainly designed
+for one distribution (one application) per one source tree situations. 
+Autodist provides mechanisms to create all kinds of distributions that can
+be created from one source tree.  To be able to use Autodist, the Autoconf
+and Automake must be installed into the system (see <a href="Integrating-Autodist.html#Integrating-Autodist">Integrating Autodist</a>). 
+Autoconf version must be at least 2.52g.
+
+   <p>Small software projects usually do very well with Autoconf and Automake
+and their distribution management features.  Often these projects do not
+need Autodist, though they can benefit from it.  However, if your software
+project is large, you need to create multiple distributions from one source
+tree, you have complex licensing terms for different distributions, you
+have different target users or customers that may require different
+feature set or licenses in different distributions, you have need to
+continue concurrent development in the main source tree and still be able
+to create stable distributions, and/or you have need to control file
+content in different distributions (to avoid distributing code or features
+that aren't supposed to be distributed, or to avoid leaking information
+to your competitors on what new features you are working on), then Autodist
+is a tool you may find usefull.
+
+   <p>The motivation behind Autodist stems from need to be able to create
+multiple distributions from one large source tree in a precise and
+controllable manner, and guarantee that anything that is not part of the
+distribution is removed from the distribution.  The Autoconf and Automake
+provides mere basic control what is included in and excluded from
+distributions and how the distributions are created.  They also do not
+provide mechanism to define different licensing conditions for different
+distributions, or changing the license automatically for different user
+or customer purposes.  Many large software projects, companies and
+corporations have commonly been using Autoconf and Automake tools, but
+have had the need to create their own ad-hoc mechanisms to control
+distribution creation.  The Autodist attempts to provide a tool that any
+size software project can effectively use to manage their distributions.
+
+   <p>Without a tool like Autodist, large software projects usually have to be
+split into separate source trees, which may not always be possible because
+they may share large portions of common code (which may further make
+concurrent development of the applications hard), or multiple Autoconf and
+Automake environments (multiple configure scripts) needs to be created
+in one source tree.  In this case the source tree usually gets very
+complicated and controlling what is compiled and what is included in
+distributions becomes harder, especially when different parts code is shared
+between applications and libraries.
+
+   </body></html>
+

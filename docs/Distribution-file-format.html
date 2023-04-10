@@ -1,0 +1,558 @@
+<html lang="en">
+<head>
+<title>Distribution file format - autodist</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="autodist">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Integrating-Autodist.html#Integrating-Autodist" title="Integrating Autodist">
+<link rel="prev" href="Creating-new-distribution.html#Creating-new-distribution" title="Creating new distribution">
+<link rel="next" href="configure_002ead-files.html#configure_002ead-files" title="configure.ad files">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+Autodist is a source distribution management system that allows powerful
+mechanisms to define what is included in and excluded from a distribution
+and what license is used. It is especially targeted at large software
+projects that create multiple distributions from a source tree. Autodist
+supports distribution management in directory, file, and file content
+level, and automatic relicensing of a distribution.-->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Distribution-file-format"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="configure_002ead-files.html#configure_002ead-files">configure.ad files</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Creating-new-distribution.html#Creating-new-distribution">Creating new distribution</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Integrating-Autodist.html#Integrating-Autodist">Integrating Autodist</a>
+<hr>
+</div>
+
+<h3 class="section">2.4 Distribution file format in detail</h3>
+
+<p>The distribution file, or distfile from now on, defines your distribution,
+distribution defines, options, included and excluded files and
+directories, license, and additional processing.  Each distribution is
+defined in a separate file and the distributions are referenced by
+their file name.
+
+   <p>The distfile is a text file that contains various directives that define
+the actual distribution.  Lines starting with '#' are considered comments
+and are ignored.
+
+<h3 class="section">2.5 Directive: name &lt;name&gt;</h3>
+
+<p>The 'name' directive defines the name of the distribution.  It is optional
+directive, and if omitted the distribution name will be the name of the
+distfile.  The 'PACKAGE_NAME' define delivered by Autoconf will contain
+this name string.
+
+   <p>Example:
+<pre class="example">     name FOO Application
+</pre>
+   <p>Will set your distribution name as 'Foo Application'.
+
+<h3 class="section">2.6 Directive: package &lt;package&gt;</h3>
+
+<p>The 'package' directive defines the name of the distribution package.  It is
+optional directive, and if omitted the distribution package name will
+be the name of the distribution, if defined, or if omitted, then the name
+of the distfile.  If this directive is omitted then normal GNU convention
+is used to decide the package name, derived from the distribution name. 
+The 'PACKAGE_TARNAME' define delivered by Autoconf will contain this
+package name string.
+
+   <p>Example:
+<pre class="example">     package foo-client
+</pre>
+   <p>Will create distribution packages named, for example, as
+'foo-client-1.0.tar.gz'.
+
+<h3 class="section">2.7 Directive: bug-report &lt;email address&gt;</h3>
+
+<p>The 'bug-report' directive can be used to define the email address where
+the bug-reports for the distribution should be sent.  The directive is
+optional.  The 'PACKAGE_BUGREPORT' define delivered by Autoconf will
+contain this bug report string.
+
+<h3 class="section">2.8 Directive: license &lt;filename&gt;</h3>
+
+<p>The 'license' directive can be used to define the license file for the
+distribution.  This directive is optional.  The license file will be
+copied into the distribution in the name 'COPYING'.  If the 'COPYING'
+file already exist it will be replaced.
+
+   <p>Example:
+<pre class="example">     license license/GPL
+</pre>
+   <p>Will include the file 'license/GPL' into the distribution in the file
+name 'COPYING'.
+
+<h3 class="section">2.9 Directive: license-header &lt;current-license&gt; &lt;new-license&gt;</h3>
+
+<p>The 'license-header' can be used to re-license your files into a new
+license.  This directive is optional.  There may be zero or more
+'license-header' directives in distribution.  The 'license-header'
+directive will compare the license header that usually appear at the
+start of a file to the &lt;current-license&gt;.  If it matches it will
+be replaced with the &lt;new-license&gt;.  The license header in the file
+will be replaced and the file will have effectively been re-licensed.
+
+   <p>Example:
+<pre class="example">     license-header license/BSD-header license/GPL-header
+</pre>
+   <p>Will replace all appearances of the license header in 'license/BSD-header'
+file to the license header in 'license/GPL-header' in any file in the
+distribution.  Note that, the header change will be performed when
+the distribution is packaged (see <a href="Creating-distribution.html#Creating-distribution">Creating distribution</a>). 
+The 'makedist.log' file created by Autodist during distribution packaging
+will list all files that were not re-licensed.  The log file can be used
+to check that the distribution is re-licensed correctly, and fix any
+possible mistakes.
+
+   <p>With 'license-header' directive you may initially set your files in the
+source tree into what ever license you prefer.  However, if you need to
+re-license parts of the source tree in certain distributions the
+'license-header' will achieve this automatically.  For example, suppose
+one wants to create two different versions of a library distribution, with
+different feature sets, in two different licenses.
+
+   <p>There are several limitations in the current implementation of Autodist
+with the 'license-header' directive:
+
+   <p>First limitation is that the header files must have equal amount of lines. 
+If the new header file has fewer lines that the current header file, all
+of the lines from the current header will not be replaced.  If the new header
+has fewer lines, empty lines must be added to it.  If the new header file
+has more lines than the current header file, the extra lines will not appear
+in the replaced header.  Basic rule is to always make sure the header
+files have equal amount of lines in them.
+
+   <p>Second limitation is in indentation of the header files.  It is suggested,
+though not mandatory, that the header files have the same indentation as
+is commonly used in the source tree; if the license header text in a file
+starts at the second character instead of at the start of the line, then
+the header file should start the license text at the second character also. 
+If same indentation is not used the appearance of the replaced header
+may not be perfect.  While this is a cosmetic issue, one still to remember.
+
+   <p>Third limitation is that the distribution cannot be partially re-licensed. 
+If the 'license-header' directive is used then all files that have the
+specified header will be replaced with the new header.  There are
+currently two ways to not re-license a file;  use different license header
+in the file than one specified in 'license-header', or specify the file or
+directory in 'noprocess' directive.  Using 'noprocess' is not possible if
+the file needs to be otherwise processed for the distribution.  Future
+versions of Autodist may provide a mechanism to re-license only part of
+the distribution.
+
+   <p>Example current header:
+<pre class="example">     --- Start example
+       This program is free software; you can redistribute it and/or modify
+       it under the terms of the GNU General Public License as published by
+       the Free Software Foundation; version 2 of the License.
+     
+       This program is distributed in the hope that it will be useful,
+       but WITHOUT ANY WARRANTY; without even the implied warranty of
+       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+       GNU General Public License for more details.
+     --- end example
+</pre>
+   <p>Example new header:
+<pre class="example">     --- Start example
+       All rights reserved.
+     
+       Redistribution and use in source and binary forms, with or without
+       modification, are permitted provided that the conditions listed in the
+       COPYING file are met.
+     
+     
+     
+     --- end example
+</pre>
+   <p>In this example, if the text in the current header file is found in any
+file in the distribution it will be replaced with the new header file. 
+Notice that, both header files have same amount of lines (8 lines).
+
+   <p>Note that, the current header must match exactly the header used in
+files.  Otherwise the replacement will not be complete.
+
+<h3 class="section">2.10 Directive: prereq &lt;version&gt;</h3>
+
+<p>The 'prereq' may be used to enforce the Autodist version.  If the Autodist
+version used to process the distribution is older than the version
+specified with 'prereq' the Autodist will fail.
+
+   <p>Example:
+<pre class="example">     prereq 1.3.2
+</pre>
+   <p>Will require Autodist 1.3.2 or newer for this distribution.
+
+<h3 class="section">2.11 Directive: inherit &lt;distfile&gt;</h3>
+
+<p>The Autodist provides inheritance of distributions.  The 'inherit'
+directive is used to define the distribution which will be inherited
+into the distribution.  The &lt;distfile&gt; specifies the name of the
+inherited distribution.  If the distribution cannot be inherited Autodist
+will give an error.
+
+   <p>The 'inherit' will inherit the following information from the
+distribution: distdefs, undefines, includes, excludes and noprocesses. 
+Other information will not be inherited.  If the inherited distribution
+inherits other distributions, they will also be inherited automatically. 
+User should be careful when inheriting distributions as it may be possible
+to create an infinite recursion.  The Autodist would allow for this and
+not detect this error.  Zero or more 'inherit' directives may be set for
+distribution.
+
+   <p>Example:
+<pre class="example">     inherit common
+     inherit client
+     inherit toolkit
+</pre>
+   <p>Will inherit distributions 'common', 'client' and 'toolkit' into this
+distribution.  All distdefs, undefines, includes, excludes and noprocesses
+from these distributions are now also part this distribution.
+
+   <p>The distribution that is being prepared or packaged take precedence when
+defining distdefs that were specifically undefined in the inherited
+distribution.  This means that if the inherited distribution specifically
+undefines a distdefs but the inheriting distribution (one being prepared
+or packaged) specifically defines it, the distdef will be defined. 
+Similarly, if the inherited distribution defines a distdef but the
+inheriting distribution undefines it, the distdef will be undefined. 
+Note that, this precedence works only in the top distribution (the one
+being prepared or packaged).  If the inherited distribution inherits other
+distributions, all distdefs (defined and specifically undefined) will be
+inherited as is.  This means that if one inherited distribution defines a
+distdef that other inherited distribution distdef undefines, it will be
+undefined.  However, the top distribution can then override them if
+needed.
+
+<h3 class="section">2.12 Directive: define &lt;symbol&gt;</h3>
+
+<p>The 'define' directive is used to define the distdef symbols for the
+distribution.  This directive is optional, however, all distributions
+should define at least one distdef so that the distribution may be
+controlled with the distdef conditionals in files in the source tree (see <a href="Distdefines.html#Distdefines">Distdefines</a>).  By default, the distdef prefix is '_DIST_'.  Many
+software projects will want to set their own prefix for the distdefs
+for consistency.  The prefix may be defined in the 'autodist.conf' file
+(see <a href="autodist_002econf.html#autodist_002econf">autodist.conf</a>).
+
+   <p>Example:
+<pre class="example">     define _DIST_FOO
+     define _DIST_FEATURE_X
+     define _DIST_LIBRARY_Y
+</pre>
+   <p>Will define the following distdefs for the distribution: '_DIST_FOO',
+'_DIST_FEATURE_X' and '_DIST_LIBRARY_Y'.  These distdefs may then be
+used in the source tree and source code to control what is included in
+or excluded from this distribution.
+
+<h3 class="section">2.13 Directive: undef &lt;symbol&gt;</h3>
+
+<p>The 'undef' directive may be used to explicitly undefine a distdef. 
+When inheriting distributions it may be desired to be able undefine
+certain distdefs.  This directive is optional.
+
+   <p>Example:
+<pre class="example">     undef _DIST_FEATURE_Y
+</pre>
+   <p>Will undefine '_DIST_FEATURE_Y' distdef.  This distdef will not be part
+of this distribution anymore, even if it is defined in some inherited
+distribution.
+
+<h3 class="section">2.14 Directive: option &lt;option&gt; [...]</h3>
+
+<p>The 'option' directive is used to define various options for the
+distribution.  The options can change the behavior of the distribution. 
+This directive is optional.  One or more options may be defined in one
+'option' directive.  Zero or more 'option' directives may be set for
+distribution.  The following options are available.
+
+<pre class="example">     template
+</pre>
+   <p>When set, the distribution is a template distribution.  Templates are
+special distributions which cannot be prepared or packaged with Autodist. 
+Templates can only be inherited.  Usually, templates are used to define a
+common template distribution for other distributions.  Templates may set
+distdefs, undefines, includes, excludes and noprocesses.  A large software
+project could have several distributions that share a common base.  In
+this case defining the common base as a template distribution and then
+inheriting that distribution makes it easier to manage the distfiles.
+
+<pre class="example">     no-dist
+</pre>
+   <p>Distributions with the 'no-dist' option are similar to templates, except
+that they can be prepared with Autodist, but they cannot be packaged. 
+These are usually used as a common development distribution, such as the
+'default' distribution created with 'autodist -i'.
+
+<pre class="example">     no-inherit
+</pre>
+   <p>If this option is set to normal distributions or distributions with
+'no-dist' option, the distribution cannot be inherited.  For template
+this option has no effect.  If distribution with this option is inherited
+the Autodist will give an error.
+
+<h3 class="section">2.15 Directive: include &lt;source&gt; [&lt;destination&gt;]</h3>
+
+<p>The 'include' directive can be used to include files or directories into
+the distribution.  Sometimes it may be desired to specify included
+files and directories in distribution instead of Makefile.am and
+EXTRA_DIST, especially if there are many distributions that need to
+include specific files and directories.  While it would be possible
+to define them in Makefile.ad and use distdef conditionals to define
+which will be included in which distribution, if there are many different
+distributions it may pollute the Makefile.ad unnecessarily.
+
+   <p>This directive is optional.  The &lt;source&gt; may be a single file, a  single
+directory or a regular expression which will match several files and/or
+directories.  The &lt;destination&gt; is optional.  If it is omitted then
+the &lt;source&gt; will be copied into the same location in the distribution. 
+If the &lt;destination&gt; is provided the &lt;source&gt; will be copied into the
+specified location.
+
+   <p>Example:
+<pre class="example">     include apps/foobar/README README
+     include lib/libfoo
+     include lib/libfoobar lib/foobarlib
+     include doc/foo*
+     include scripts/foobar.sh foo.sh
+</pre>
+   <p>Will include the file 'apps/foobar/README' into the top distribution
+directory in the name 'README', the directory 'lib/libfoo' into same
+location in distribution, the directory 'lib/libfoobar' into
+'lib/foobarlib' changing the name of the directory into 'foobarlib',
+the files and directories that match 'doc/foo*' into the same locations
+in distribution, and finally the 'scripts/foobar.sh' into the top
+distribution directory changing the name of the file into 'foo.sh'.
+
+   <p>Note that, the 'include' directives will be processed by the Autodist
+only when the distribution is packaged (see <a href="Creating-distribution.html#Creating-distribution">Creating distribution</a>).  When preparing the source
+tree for configuration and compilation (see <a href="Preparing-source-tree.html#Preparing-source-tree">Preparing source tree</a>)
+the 'include' directives are ignored.  This is same behavior as with
+Makefile.am's EXTRA_DIST.
+
+   <p>If the included file or directory does not exist the Autodist will
+give an error and stop the distribution creation.  If the destination
+file exist, it will be replaced with the included file.  If the
+destination directory already exists, the contents of the source
+directory will be copied into the directory.  Note that, the directory
+will not be copied into the directory; if the &lt;destination&gt; is specified,
+also the name of the &lt;source&gt; file or directory must be specified,
+otherwise the 'include' will change the name into the one specified.
+
+   <p>Example:
+<pre class="example">     include lib/libfoo lib
+</pre>
+   <p>In this example the 'lib/libfoo' will be included as 'lib'.  If the 'lib'
+already exists, this effectively copies the contents of the 'lib/libfoo'
+into 'lib'.  In order to include the directory with same name, the
+name must be specified.
+
+   <p>Example:
+<pre class="example">     include lib/libfoo lib/libfoo
+     include lib/foobar new_lib/foobar
+</pre>
+   <p>This will include the 'lib/libfoo' into 'lib/libfoo' in distribution,
+and 'lib/foobar' into 'new_lib/foobar' in distribution.
+
+<h3 class="section">2.16 Directive: exclude &lt;filename&gt; [...]</h3>
+
+<p>The 'exclude' directive can be used to exclude files and directories from
+the distribution.  This directive is optional.  This directive is
+processed before processing the 'include' directive.  The &lt;filename&gt;
+can be a single file, a single directory or a regular expression that
+will match several files and/or directories.
+
+   <p>Example:
+<pre class="example">     exclude README
+     exclude doc/client*
+</pre>
+   <p>This will exclude the file 'README' and anything that match 'doc/client*'.
+
+<h3 class="section">2.17 Directive: noprocess &lt;filename&gt; [...]</h3>
+
+<p>The 'noprocess' directive can be used to tell Autodist specifically not to
+process files or directories.  The Autodist will not process the files
+during distribution packaging.  This directive is optional.  One or more
+files can be specified in the 'noprocess' directive.  Zero or more
+'noprocess' directives can be used in distribution.  The &lt;filename&gt; can be
+a single file, a single directory or a regular expression that will match
+several files and/or directories.
+
+   <p>Example:
+<pre class="example">     noprocess autodist.texi
+     noprocess apps/foo/
+</pre>
+   <p>Autodist will not process 'autodist.texi' file, and any files and
+directories under 'apps/foo/'.
+
+   <p>Note that, 'noprocess' directive cannot be used to disallow
+processing of any file with '.ad' suffix.
+
+<h3 class="section">2.18 Directive: pre-hook &lt;filename&gt; [...]</h3>
+
+<p>The 'pre-hook' directive can be used define additional scripts that
+will be run before the source tree is prepared.  This directive is
+optional.  One or more scripts may be defined in one 'pre-hook' directive. 
+Zero or more 'pre-hook' directives may be set for distribution.  The
+'pre-hook' hook will be run immediately after invoking Autodist to start
+preparing the source tree for configuration and compilation (see <a href="Preparing-source-tree.html#Preparing-source-tree">Preparing source tree</a>).
+
+   <p>The scripts will get at least three (3) command line arguments when
+Autodist executes the script: distribution name, distribution version and
+package name of distribution.  The script may use these arguments if it
+needs them.  If user passed any extra parameters to autodist in the
+command line they will also be passed to the script as last arguments.
+
+<h3 class="section">2.19 Directive: post-hook &lt;filename&gt; [...]</h3>
+
+<p>The 'post-hook' directive can be used define additional scripts that
+will be run after the source tree is prepared.  This directive is
+optional.  One or more scripts may be defined in one 'post-hook' directive. 
+Zero or more 'post-hook' directives may be set for distribution.  The
+'post-hook' hook will be run immediately after the Autodist has finished
+preparing the source three for configuration and compilation (see <a href="Preparing-source-tree.html#Preparing-source-tree">Preparing source tree</a>).  The Autodist will exit after it has run the
+'post-hook' scripts.
+
+   <p>The scripts will get at least three (3) command line arguments when
+Autodist executes the script: distribution name, distribution version and
+package name of distribution.  The script may use these arguments if it
+needs them.  If user passed any extra parameters to autodist in the
+command line they will also be passed to the script as last arguments.
+
+<h3 class="section">2.20 Directive: pre-process-dist-hook &lt;filename&gt; [...]</h3>
+
+<p>The 'pre-process-dist-hook' directive can be used define additional
+scripts that will be run when Autodist has started distribution creation. 
+This directive is optional.  One or more scripts may be defined in one
+'pre-process-dist-hook' directive.  Zero or more 'pre-process-dist-hook'
+directives may be set for distribution.  The 'pre-process-dist-hook' hook
+will be run immediately after the Autodist has created the distribution
+directory but has not yet started any distribution processing.
+
+   <p>The scripts will get at least four (4) command line arguments when
+Autodist executes the script: distribution name, distribution version,
+package name of distribution and destination distribution directory name. 
+The script may use these arguments if it needs them.  If user passed any
+extra parameters to autodist in the command line they will also be passed
+to the script as last arguments.
+
+<h3 class="section">2.21 Directive: post-process-dist-hook &lt;filename&gt; [...]</h3>
+
+<p>The 'post-process-dist-hook' directive can be used define additional
+scripts that will be run when Autodist has finished distribution
+processing.  This directive is optional.  One or more scripts may be
+defined in one 'post-process-dist-hook' directive.  Zero or more
+'post-process-dist-hook' directives may be set for distribution.  The
+'post-process-dist-hook' hook will be run immediately after the Autodist
+has finished processing the destination distribution directory but has not
+yet created the distribution package.
+
+   <p>The scripts will get at least four (4) command line arguments when
+Autodist executes the script: distribution name, distribution version,
+package name of distribution and destination distribution directory name. 
+The script may use these arguments if it needs them.  If user passed any
+extra parameters to autodist in the command line they will also be passed
+to the script as last arguments.
+
+<h3 class="section">2.22 Directive: pre-dist-hook &lt;filename&gt; [...]</h3>
+
+<p>The 'pre-dist-hook' directive can be used define additional scripts that
+will be run when Autodist has started distribution creation.  This directive
+is optional.  One or more scripts may be defined in one 'pre-dist-hook'
+directive.  Zero or more 'pre-dist-hook' directives may be set for
+distribution.  The 'pre-dist-hook' hook will be run immediately after
+the Autodist has started distribution creation, but has not yet created
+the distribution directory.  This hook is run before 'pre-process-dist-hook'.
+
+   <p>The scripts will get at least four (4) command line arguments when
+Autodist executes the script: distribution name, distribution version,
+package name of distribution and destination distribution directory name. 
+The script may use these arguments if it needs them.  If user passed any
+extra parameters to autodist in the command line they will also be passed
+to the script as last arguments.
+
+<h3 class="section">2.23 Directive: post-dist-hook &lt;filename&gt; [...]</h3>
+
+<p>The 'post-dist-hook' directive can be used define additional scripts that
+will be run when Autodist has finished distribution creation.  This
+directive is optional.  One or more scripts may be defined in one
+'post-dist-hook' directive.  Zero or more 'post-dist-hook' directives may
+be set for distribution.  The 'post-dist-hook' hook will be run
+immediately after the Autodist has finished creating the distribution
+package.  This is the last hook Autodist runs.
+
+   <p>The scripts will get at least four (4) command line arguments when
+Autodist executes the script: distribution name, distribution version,
+package name of distribution and destination distribution directory name. 
+The script may use these arguments if it needs them.  If user passed any
+extra parameters to autodist in the command line they will also be passed
+to the script as last arguments.
+
+<h3 class="section">2.24 Running hooks</h3>
+
+<p>The Autodist runs the hooks in the following order:
+
+   <p>Preparing source tree for configuration and compilation:
+
+<pre class="example">     &lt;...Autodist started...&gt;
+     pre-hook
+     &lt;...preparation...&gt;
+     post-hook
+     &lt;...Autodist exits...&gt;
+</pre>
+   <p>Creating distribution:
+
+<pre class="example">     &lt;...Autodist started...&gt;
+     pre-dist-hook
+     &lt;...distribution directory created...&gt;
+     pre-process-dist-hook
+     &lt;...processing all files, processing excludes and includes...&gt;
+     post-process-dist-hook
+     &lt;...creating distribution package...&gt;
+     post-dist-hook
+     &lt;...Autodist exits...&gt;
+</pre>
+   <p>When creating distribution the 'pre-hook' and 'post-hook' are not run.
+
+<h3 class="section">2.25 Example distfile</h3>
+
+<p>The following is a simple distfile example.  The example assumes that the
+distdefs prefix is 'SILC'.
+
+<pre class="example">     # SILC Client distribution
+     name SILC Client
+     package silc-client
+     bug-report silc-client-bugs@silcnet.org
+     inherit common
+     inherit platform-unix
+     inherit platform-win32
+     define SILC_DIST_CLIENT
+     define SILC_DIST_CLIENTLIB
+     define SILC_DIST_IRSSI
+     undef SILC_DIST_MPI
+     exclude doc/draft*
+     pre-hook scripts/client-pre-run
+     post-process-dist-hook scripts/client-post-process
+     post-dist-hook scripts/client-post-dist-bin
+</pre>
+   <ul class="menu">
+<li><a accesskey="1" href="configure_002ead-files.html#configure_002ead-files">configure.ad files</a>:           configure script for creating configure.ac
+</ul>
+
+   </body></html>
+

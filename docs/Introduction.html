@@ -1,0 +1,91 @@
+<html lang="en">
+<head>
+<title>Introduction - autodist</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="autodist">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="prev" href="index.html#Top" title="Top">
+<link rel="next" href="Integrating-Autodist.html#Integrating-Autodist" title="Integrating Autodist">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+Autodist is a source distribution management system that allows powerful
+mechanisms to define what is included in and excluded from a distribution
+and what license is used. It is especially targeted at large software
+projects that create multiple distributions from a source tree. Autodist
+supports distribution management in directory, file, and file content
+level, and automatic relicensing of a distribution.-->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Introduction"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="Integrating-Autodist.html#Integrating-Autodist">Integrating Autodist</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="index.html#Top">Top</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="index.html#Top">Top</a>
+<hr>
+</div>
+
+<h2 class="chapter">1 Introduction</h2>
+
+<p>The Autodist is a source distribution management system that allows
+powerful mechanisms to define what is included in and excluded from a
+distribution, and what license the distribution is released under.  It is
+also used to create the actual distribution source packages.  Autodist
+allows distribution management in file, directory and file content level. 
+Different distributions may include different portions of files, for
+example, excluding certain features from certain distributions.  It is
+always guaranteed that anything not defined for the distribution, is
+removed automatically (files, file content, directories), thus ensuring
+that nothing is accidentally included in the distribution.
+
+   <p>The Autodist creates 'Makefile.am' files from 'Makefile.ad' files and
+'configure.ac' file from one or more 'configure.ad' files.  Any other file
+ending with '.ad' suffix will also be processed.  The processed file will
+have the '.ad' suffix removed (see <a href="Preparing-source-tree.html#Preparing-source-tree">Preparing source tree</a>). 
+Autodist also creates and packages the distribution using common GNU
+distribution creation process, specifically `make dist'.  Autodist, however,
+controls this process and during packaging phase the Autodist processes
+all files in the distribution (other than '*.ad' files, which has already
+been processed earlier by Autodist).  The resulted package is a processed
+source distribution package, processed according to the rules specified
+in the distribution file(s) (see <a href="Creating-distribution.html#Creating-distribution">Creating distribution</a>).
+
+   <p>Any file in the source tree may use distdefs (distribution defines (see <a href="Distdefines.html#Distdefines">Distdefines</a>)) which are defined in the distributions.  When distribution
+is packaged only the files, directories and file content that is either
+outside of any distdef, or inside the defined distdefs will be included
+in the distribution.  Any other file, directory or content in the file
+will be removed.  It is guaranteed, if a file, a directory or a piece of
+file content is not inside a defined distdef it will not be delivered to
+the distribution.
+
+   <p>Any file, 'Makefile.am', 'configure.ac', or source file processed with
+Autodist is always compliant with the tools needed to process them.  All
+files can also be processed with the corresponding tools even before
+processing them with Autodist.  This makes it possible, for example, to
+compile sources before they have been processed, and undefined lines
+are removed.  The distdefs are respected in source files by the
+preprocessor.
+
+   <p>Autodist is not a binary packaging system.  It is specifically used to
+create source distributions.  A binary packaging system, however can be
+hooked to the distribution creation process, if needed.
+
+<ul class="menu">
+<li><a accesskey="1" href="Motivation.html#Motivation">Motivation</a>:                   Reasons for using Autodist
+</ul>
+
+   </body></html>
+

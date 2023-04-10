@@ -1,0 +1,221 @@
+<html lang="en">
+<head>
+<title>Distdefines - autodist</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="autodist">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Integrating-Autodist.html#Integrating-Autodist" title="Integrating Autodist">
+<link rel="prev" href="Other-_002ead-files.html#Other-_002ead-files" title="Other .ad files">
+<link rel="next" href="Dependencies.html#Dependencies" title="Dependencies">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+Autodist is a source distribution management system that allows powerful
+mechanisms to define what is included in and excluded from a distribution
+and what license is used. It is especially targeted at large software
+projects that create multiple distributions from a source tree. Autodist
+supports distribution management in directory, file, and file content
+level, and automatic relicensing of a distribution.-->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Distdefines"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="Dependencies.html#Dependencies">Dependencies</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Other-_002ead-files.html#Other-_002ead-files">Other .ad files</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Integrating-Autodist.html#Integrating-Autodist">Integrating Autodist</a>
+<hr>
+</div>
+
+<h3 class="section">2.29 Using distribution defines (distdefs)</h3>
+
+<p>Distribution defines, or distdefs from now on, are used to define inside
+a file what will be included in the distribution.  Distribution may define
+many different distdefs, for example, based on feature sets, platforms, or
+for other similar reasons.  If distdef is not defined for the distribution
+but is used in a file, anything inside the distdef in that file will be
+removed when the distribution is packaged (see <a href="Creating-distribution.html#Creating-distribution">Creating distribution</a>).  This guarantees that only the files, directories and file content
+(such as source code) that is supposed to be delivered with the distribution
+are delivered.  Delivering files or code accidentally in the distribution
+cannot happen.
+
+   <p>All other files, except files ending with '.ad' suffix are processed for
+distdefs only when the distribution is packaged.  Files ending with '.ad'
+suffix are processed for distdefs when preparing the source tree for
+configuration and compilation (see <a href="Preparing-source-tree.html#Preparing-source-tree">Preparing source tree</a>).
+
+   <p>By default the distdefs are named '_DIST_XXX', where 'XXX' is the name of
+distdef.  However, many projects will want to define their own prefix
+for distdefs in the 'autodist.conf' configuration file (see <a href="autodist_002econf.html#autodist_002econf">autodist.conf</a>). 
+In the following examples a prefix 'SILC' is used, hence the prefix for
+the distdefs are 'SILC_DIST_'.
+
+   <p>The basic format for the distdefs are as follows:
+
+<pre class="example">     #ifdef SILC_DIST_DEFINE
+     #endif SILC_DIST_DEFINE
+     
+     #ifndef SILC_DIST_DEFINE
+     #endif SILC_DIST_DEFINE
+     
+     #ifdef SILC_DIST_DEFINE
+     #else !SILC_DIST_DEFINE
+     #endif SILC_DIST_DEFINE
+     
+     #ifndef SILC_DIST_DEFINE
+     #else SILC_DIST_DEFINE
+     #endif SILC_DIST_DEFINE
+</pre>
+   <p>This format should be used only in non-source files, as for example C and
+C++ compilers will not like this format inside a file.  In source files
+a compiler friendly format, defined below, should be used.
+
+<pre class="example">     #ifdef SILC_DIST_DEFINE
+     #endif /* SILC_DIST_DEFINE */
+     
+     #ifndef SILC_DIST_DEFINE
+     #endif /* SILC_DIST_DEFINE */
+     
+     #ifdef SILC_DIST_DEFINE
+     #else /* !SILC_DIST_DEFINE */
+     #endif /* SILC_DIST_DEFINE */
+     
+     #ifndef SILC_DIST_DEFINE
+     #else /* SILC_DIST_DEFINE */
+     #endif /* SILC_DIST_DEFINE */
+</pre>
+   <p>Note that, only the format defined above is supported.  Other more complex
+use of the preprocessor directives such as using '&amp;&amp;' and '||' in the
+'#ifdef' or '#ifndef' are not supported, and neither is '#elif'.  Also
+note, that the name of the distdef in '#else' and '#endif' directives in
+non-source format and in source format inside C comments (/* */), and the
+use of '!' character in the '#else' branch of '#ifdef'" are mandatory. 
+Also note, that the distdef conditionals must be placed at the start of
+the line, they must not be indented.
+
+   <p>The following example shows the use of non-source format:
+
+<pre class="example">     SUBDIRS =                        \
+     #ifdef SILC_DIST_SERVER
+            server                    \
+            server-foobar             \
+     #endif SILC_DIST_SERVER
+     #ifndef SILC_DIST_CLIENT
+            tests                     \
+     #endif SILC_DIST_CLIENT
+     #ifdef SILC_DIST_TOOLKIT
+            toolkit                   \
+            toolkit-docs              \
+     #else !SILC_DIST_TOOLKIT
+            doc                       \
+            lib                       \
+     #ifdef SILC_DIST_CLIENT
+            client                    \
+     #endif SILC_DIST_CLIENT
+     #endif SILC_DIST_TOOLKIT
+</pre>
+   <p>Say, in this example, your distribution has the SILC_DIST_CLIENT and
+SILC_DIST_SERVER defined, but not the SILC_DIST_TOOLKIT, the end result
+would be:
+
+<pre class="example">     SUBDIRS =                        \
+            server                    \
+            server-foobar             \
+            doc                       \
+            lib                       \
+            client                    \
+</pre>
+   <p>The lines defined specifically for the SILC_DIST_TOOLKIT, which in our
+example was not defined, were removed.  Also lines that specifically
+expected certain distdefs not to be defined ('#ifndef') were removed. 
+(Note the last remaining '\' in example above would be removed by the
+Autodist automatically to avoid errors with Automake.)
+
+   <p>The following example shows the use of source code format:
+
+<pre class="example">       initialize_lib();
+     #ifdef SILC_DIST_MPI
+       init_mpi();
+       mpi = mpi_alloc();
+     #else /* !SILC_DIST_MPI */
+       init_gmp();
+     #endif /* SILC_DIST_MPI */
+     
+     #ifndef SILC_DIST_FOOBAR
+       foobar_replacement();
+       foobar_hack_init();
+       foobar_init();
+     #else /* SILC_DIST_FOOBAR */
+       real_foobar();
+     #endif /* SILC_DIST_FOOBAR */
+</pre>
+   <p>Say, you have both SILC_DIST_MPI and SILC_DIST_FOOBAR defined, the end result
+would be:
+
+<pre class="example">       initialize_lib();
+       init_mpi();
+       mpi = mpi_alloc();
+     
+       real_foobar();
+</pre>
+   <p>Even before processing the source files with Autodist, the preprocessor
+will respect the preprocessor directives if the code use '#include' to
+include the distdef header file created by the Autodist (see
+'autodist.conf' (see <a href="autodist_002econf.html#autodist_002econf">autodist.conf</a>)).  When the distribution
+is packaged (see <a href="Creating-distribution.html#Creating-distribution">Creating distribution</a>) the Autodist will
+process the files, and will remove any line not defined to be included. 
+The preprocessor directives will also be removed.
+
+   <p>Because the software project includes the header file with '#include' the
+distdef header file needs to be present in the distribution, unless it is
+placed inside some other '#ifdef' conditional.  If the distribution is
+prepared but not compiled (it is packaged after preparation without
+compilation) then including the distdef header in the source is not
+necessary.  Including it then in the distribution is not necessary either.
+
+   <p>The software project should not use the same name space that distdef
+conditionals use for other than distribution usage.  The Autodist will
+process any line that uses the formats above and has the specified prefix
+(eg. 'SILC_DIST_') in those lines.  Using same prefix for other purposes
+will produce unexpected results and invalid distributions.
+
+   <p>The following suffixes will be considered as source files by the Autodist:
+
+<pre class="example">         .c
+         .C
+         .cc
+         .cp
+         .cpp
+         .CPP
+         .cxx
+         .CXX
+         .c++
+         .m
+         .h
+         .H
+         .hh
+</pre>
+   <p>Also, any file that has '.in' suffix with any of the above source file
+suffixes, the format inside the file must follow the source code format. 
+Using distdefs in any other file must follow the non-source format.
+
+   <p>Example:
+<pre class="example">         .c.in
+         .h.in
+</pre>
+   <p>In this example, in both of the files the source code format is used.
+
+   </body></html>
+

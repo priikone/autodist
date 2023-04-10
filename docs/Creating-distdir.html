@@ -1,0 +1,66 @@
+<html lang="en">
+<head>
+<title>Creating distdir - autodist</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="autodist">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Integrating-Autodist.html#Integrating-Autodist" title="Integrating Autodist">
+<link rel="next" href="autodist_002econf.html#autodist_002econf" title="autodist.conf">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+Autodist is a source distribution management system that allows powerful
+mechanisms to define what is included in and excluded from a distribution
+and what license is used. It is especially targeted at large software
+projects that create multiple distributions from a source tree. Autodist
+supports distribution management in directory, file, and file content
+level, and automatic relicensing of a distribution.-->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Creating-distdir"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="autodist_002econf.html#autodist_002econf">autodist.conf</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Integrating-Autodist.html#Integrating-Autodist">Integrating Autodist</a>
+<hr>
+</div>
+
+<h3 class="section">2.1 Creating distributions directory</h3>
+
+<p>The distributions directory is 'distdir', which is expected to be
+located in the root of the source tree.  This directory will hold all
+the distribution files, and the Autodist configuration file 'autodist.conf' (see <a href="autodist_002econf.html#autodist_002econf">autodist.conf</a>). 
+If this directory does not exist it can be created with the Autodist.
+
+<pre class="example">       autodist -i
+</pre>
+   <p>This will create the 'distdir' and copy the default 'autodist.conf'
+configuration file and the 'default' distribution into the directory. 
+The 'default' distribution will be used by default by the Autodist
+unless other distribution is specified.
+
+   <p>After this the Autodist has effectively been integrated into the
+software project.  However, usually after this, one would create new
+distributions, the 'configure.ad' and possibly 'Makefile.ad' file(s). 
+Without 'configure.ad' file a distribution package cannot be created. 
+However, even without 'configure.ad' file the source tree can be
+prepared for configuration and compilation (see <a href="Preparing-source-tree.html#Preparing-source-tree">Preparing source tree</a>).
+
+<ul class="menu">
+<li><a accesskey="1" href="autodist_002econf.html#autodist_002econf">autodist.conf</a>:                Configuring Autodist
+</ul>
+
+   </body></html>
+

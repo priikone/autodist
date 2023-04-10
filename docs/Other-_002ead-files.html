@@ -1,0 +1,68 @@
+<html lang="en">
+<head>
+<title>Other .ad files - autodist</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="autodist">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Integrating-Autodist.html#Integrating-Autodist" title="Integrating Autodist">
+<link rel="prev" href="Makefile_002ead-files.html#Makefile_002ead-files" title="Makefile.ad files">
+<link rel="next" href="Distdefines.html#Distdefines" title="Distdefines">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+Autodist is a source distribution management system that allows powerful
+mechanisms to define what is included in and excluded from a distribution
+and what license is used. It is especially targeted at large software
+projects that create multiple distributions from a source tree. Autodist
+supports distribution management in directory, file, and file content
+level, and automatic relicensing of a distribution.-->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Other-.ad-files"></a>
+<a name="Other-_002ead-files"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="Distdefines.html#Distdefines">Distdefines</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Makefile_002ead-files.html#Makefile_002ead-files">Makefile.ad files</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Integrating-Autodist.html#Integrating-Autodist">Integrating Autodist</a>
+<hr>
+</div>
+
+<h3 class="section">2.28 Other .ad files</h3>
+
+<p>Any file in the source tree can have the '.ad' suffix appended.  Autodist
+will process any file that has the suffix when the source tree is
+prepared for configuration and compilation (see <a href="Preparing-source-tree.html#Preparing-source-tree">Preparing source tree</a>).  If the files have distdef conditionals the Autodist will process them. 
+The files will have the '.ad' suffix removed.
+
+   <p>Basic rule is, if you need to process some file when preparing the
+source tree for configuration and compilation, add '.ad' suffix to it. 
+Distdefs (see <a href="Distdefines.html#Distdefines">Distdefines</a>) can be used in any file in source
+tree but without '.ad' suffix Autodist will not process those files during
+preparation.  They will be processed when creating the distribution package. 
+If you need processed files during configuration or compilation then they
+need to have '.ad' suffix.
+
+   <p>Note that, the distdef format used in these files must be the non-source
+format, even if the file is source file.  This is because the distdefs
+are processed during source tree preparation, and the source file will
+have all distdefs removed when it is compiled.
+
+<ul class="menu">
+<li><a accesskey="1" href="Distdefines.html#Distdefines">Distdefines</a>:                  Using distdefs in files
+</ul>
+
+   </body></html>
+
